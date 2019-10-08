@@ -1,0 +1,8 @@
+# First we ran trinity for the de-novo assembly of the transcripts
+# In ~/Git/UPSCb/projects/spruce/pipeline/v1.1 we ran: ./submitTrinity.sh somEmb
+
+# next run:
+transdecoder
+
+# and align the transcript to the genome
+GMAP
