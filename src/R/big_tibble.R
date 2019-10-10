@@ -2,7 +2,7 @@ library(Biostrings)
 library(tidyverse)
 library(here)
 dir(here("data/"))
-ref <- readDNAStringSet("data/Trinity.fasta")
+ref <- readDNAStringSet("data/trinity/Trinity.fasta")
 bla <- sub(" .*","",names(ref))
 bla_new <- alphabetFrequency(ref)
 bla_GC <- rowSums(alphabetFrequency(ref)[,c("C","G")]) / width(ref)
@@ -23,7 +23,7 @@ PLEK_read <- read_delim(file="data/PLEK/Trinity.txt",
 PLEK_index <- left_join(CNCI_read, PLEK_read, by = NULL, copy=FALSE)
 PLEK_tib <- PLEK_index$index
 
-  CPC2_read <- read_delim(file = "data/CPC2/results.txt",
+CPC2_read <- read_delim(file = "data/CPC2/results.txt",
                         delim="\t")
 CPC2_tib <- CPC2_read$label
 

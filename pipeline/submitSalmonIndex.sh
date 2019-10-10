@@ -10,6 +10,7 @@ source $UPSCb/src/bash/functions.sh
 email=camilla.canovi@umu.se
 in=~/Git/lncRNAs/data/trinity/Trinity.fasta
 out=~/Git/lncRNAs/data/SalmonIndex
+proj=u2015037
 
 ## create the out dir
 if [ ! -d $out ]; then
@@ -18,4 +19,4 @@ fi
 
 
 # exec
-sbatch -e $outdir/SalmonIndex.err -o $outdir/SalmonIndex.out --mail-user $email $UPSCb-common/pipeline/runSalmonIndex.sh -t 10 $in $out
+sbatch -e $outdir/SalmonIndex.err -o $outdir/SalmonIndex.out --mail-user $email -A $proj ../UPSCb-common/pipeline/runSalmonIndex.sh -t 10 $in $out

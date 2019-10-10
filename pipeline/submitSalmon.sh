@@ -19,6 +19,7 @@ ref=~/Git/lncRNAs/data/SalmonIndex
 out=~/Git/lncRNAs/data/Salmon
 bind=/mnt:/mnt
 img=/mnt/picea/projects/singularity/salmon.simg
+proj=u2015037
 
 ## check vars
 if [ -z $UPSCb ]; then
@@ -38,7 +39,7 @@ for f in $(find $in -name "*sortmerna_trimmomatic_1.fq.gz"); do
   ## execute
   sbatch --mail-user=$email \
   -e $out/$fnam.err -o $out/$fnam.out \
-  $UPSCb-common/pipeline/runSalmon.sh -b $bind \
+  -A $proj ../UPSCb-common/pipeline/runSalmon.sh -b $bind \
   -i $img $ref $f $in/${fnam}_2.fq.gz $out
 
 done
