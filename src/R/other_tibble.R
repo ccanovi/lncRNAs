@@ -114,3 +114,28 @@ diamond <- read_table2("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz",
                       col_names = c("TRINITY_ID", "reference_ID", "matches", "alignment_length", "mismatch",
                                     "gap_open", "start_trinity", "end_trinity", "start_ref", "end_ref",
                                     "evalue", "bitscore", "trinity_length", "ref_length", "taxonomy"))
+
+# TODO we need to pre-process the results to keep the best hit
+
+uniref_id <- unique(diamond$reference_ID)
+
+# Taxonomy
+#tax_map <- readRDS(here("uniref/annotation/uniref90.id.rds"))
+
+f<-function(lines,pos){
+    return(lines[lines$V1 %in% uniref_id,])
+}
+
+#lines <- read_delim(here("uniref/annotation/uniref90_id-table.txt"),delim=" ",n_max=6)
+
+tax_map <- read_delim_chunked(
+    here("uniref/annotation/uniref90_id-table.txt"),
+    chunk_size=1e6,delim=" ",callback=DataFrameCallback$new(f))
+
+# Does not look too bad
+mar <- par("mar")
+par(mar=c(10.1,4.1,0.1,0.1))
+barplot(sort(table(tax_map$V2),decreasing=TRUE)[1:20],las=2)
+par(mar=mar)
+
+
