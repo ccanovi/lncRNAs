@@ -4,22 +4,6 @@ library(tximport)
 library(here)
 dir(here("data/"))
 
-#Trandecoder
-transdecoder <- read_table2("data/Transdecoder/Trinity.fasta.transdecoder.IDs.txt",
-                    col_names = c("TransDecoderID","X2","X3",
-                                  "Type","AALength","Score","Coord"),
-                    col_types = cols_only("TransDecoderID"=col_character(),
-                                            "Type"=col_character(),
-                                          "AALength"=col_number(),
-                                          "Score"=col_character(),
-                                          "Coord"=col_character())) %>% 
-    mutate(TransDecoderID,TransDecoderID=sub(">","",TransDecoderID)) %>% 
-    mutate(Type,Type=factor(sub("type:","",Type))) %>% 
-    mutate(Score,Score=parse_double(sub(".*=","",Score),locale=locale(decimal_mark = "."))) %>% 
-    mutate(Coord,Strand=factor(gsub(".*\\(|\\)","",Coord))) %>% 
-    mutate(Coord,Start=parse_integer(gsub(".*:|-.*","",Coord))) %>% 
-    mutate(Coord,End=parse_integer(gsub(".*[0-9]+-|\\(.*","",Coord)))
-
 #Salmon
 
 salmon <- list.files("data/Salmon", 
@@ -30,7 +14,19 @@ salmon <- list.files("data/Salmon",
 salmon.g <- suppressMessages(tximport(files = salmon, 
                                   type = "salmon",txOut=TRUE))
 
+
 counts <- round(salmon.g$counts)               
+colnames(counts) <- sub(".*/","",sub("_L00[1,2]_sort.*","",salmon))
+
+# Time specificity
+source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
+expressionSpecificity(counts,samples$Stages,output = "complete")
+
+rowMeans2()
+rowMedians()
+rowSds()
+rowMads()
+
 
 #GMAP
 
