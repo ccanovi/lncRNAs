@@ -46,6 +46,8 @@ filelist <- list.files(here("data/Salmon"),
                           full.names = TRUE)
 
 #' Sanity check to ensure that the data is sorted according to the sample info
+filelist <- filelist[match(samples$ScilifeID,sub("_sortmerna.*","",basename(dirname(filelist))))]
+
 stopifnot(all(match(sub("_sortmerna.*","",basename(dirname(filelist))),
                     samples$ScilifeID) == 1:nrow(samples)))
 
