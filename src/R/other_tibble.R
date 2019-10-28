@@ -16,16 +16,24 @@ salmon.g <- suppressMessages(tximport(files = salmon,
 
 
 counts <- round(salmon.g$counts)               
-colnames(counts) <- sub(".*/","",sub("_L00[1,2]_sort.*","",salmon))
+colnames(counts) <- sub(".*/","",sub("_L00[1,2]_sort.*","",sub("[1,2]_[1].*_.*DXX_","", sub("_dual.*","",salmon))))
+
+load(here("data/analysis/DE/vst-aware.rda"))
 
 # Time specificity
 source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
-expressionSpecificity(counts,samples$Stages,output = "complete")
+samples_m <- read.csv("doc/samples.csv")
+time_expression <- expressionSpecificity(exp.mat = vsta[,samples_m$ScilifeID],
+                                         tissues = as.character(samples_m$Stages),
+                                         output = "complete")
 
-rowMeans2()
-rowMedians()
-rowSds()
-rowMads()
+#means <- rowMeans2(time_expression,cols = TRUE, na.rm = TRUE)
+means <- rowMeans2(time_expression,
+                   cols = is.vector(c("S1","S2","S3","S4","S5","S6","S7","S8")),
+                   na.rm = TRUE)
+median <- rowMedians(time_expression)
+sd <- rowSds(time_expression)
+zero_point <- rowMads(time_expression)
 
 
 #GMAP
@@ -110,11 +118,23 @@ subtract <- read_table2("data/GMAP/BedToolsSubtract/GMAP_all-Eugene-gene-only_no
                                               "total_subtract" = col_character()))
 # Diamond
 
-diamond <- read_table2("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz",
-                      col_names = c("TRINITY_ID", "reference_ID", "matches", "alignment_length", "mismatch",
-                                    "gap_open", "start_trinity", "end_trinity", "start_ref", "end_ref",
-                                    "evalue", "bitscore", "trinity_length", "ref_length", "taxonomy"))
+#diamond <- read_table2("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz",
+#                      col_names = c("TRINITY_ID", "reference_ID", "matches", "alignment_length", "mismatch",
+#                                    "gap_open", "start_trinity", "end_trinity", "start_ref", "end_ref",
+#                                    "evalue", "bitscore", "trinity_length", "ref_length", "taxonomy"))
 
+diamond <- read_table2("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz",
+                       col_names = c("TRINITY_ID", "reference_ID", 
+                                     "identity", "alignment_length", "mismatch",
+                                     "gap_open", "start_trinity", "end_trinity", 
+                                     "start_ref", "end_ref",
+                                     "evalue", "bitscore", "trinity_length", 
+                                     "ref_length", "taxonomy")) %>% 
+  mutate(trinity_cov=alignment_length/trinity_length,
+         ref_cov=alignment_length/ref_length) %>% 
+  group_by(TRINITY_ID) %>% 
+  arrange(desc(identity),desc(trinity_cov),desc(ref_cov)) %>% 
+  slice(1) %>% ungroup()
 # TODO we need to pre-process the results to keep the best hit
 
 uniref_id <- unique(diamond$reference_ID)
