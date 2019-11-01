@@ -67,3 +67,9 @@ non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK
 time_expression_nc <- non_coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n)
 time_expression_nc_filtered <-  time_expression_nc %>% filter(score != "NA")
 plot(density(time_expression_nc_filtered$score))
+
+#time expression for only coding
+time_expression_c <- coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n)
+time_expression_c_filtered <-  time_expression_c %>% filter(score != "NA")
+plot(density(time_expression_c_filtered$score))
+
