@@ -9,26 +9,29 @@
 #' ---
 #' # Setup
 #' Libraries
-suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(DESeq2))
-suppressPackageStartupMessages(library(gplots))
-suppressPackageStartupMessages(library(here))
-suppressPackageStartupMessages(library(hyperSpec))
-suppressPackageStartupMessages(library(parallel))
-suppressPackageStartupMessages(library(pander))
-suppressPackageStartupMessages(library(plotly))
-suppressPackageStartupMessages(library(RColorBrewer))
-suppressPackageStartupMessages(library(scatterplot3d))
-suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(tximport))
-suppressPackageStartupMessages(library(vsn))
-
+suppressPackageStartupMessages({
+  library(data.table)
+  library(DESeq2)
+  library(gplots)
+  library(here)
+  library(hyperSpec)
+  library(matrixStats)
+  library(parallel)
+  library(pander)
+  library(plotly)
+  library(RColorBrewer)
+  library(scatterplot3d)
+  library(tidyverse)
+  library(tximport)
+  library(vsn)
+})
 #' Helper functions
 source(here("UPSCb-common/src/R/plot.multidensity.R"))
 source(here("UPSCb-common/src/R/featureSelection.R"))
 
 #' Graphics
-pal <- brewer.pal(8,"Dark2")
+#pal <- brewer.pal(8,"Dark2")
+pal <- brewer.pal(10,"Paired")
 hpal <- colorRampPalette(c("blue","white","red"))(100)
 mar <- par("mar")
 
@@ -39,6 +42,7 @@ samples <- read_csv(here("doc/samples.csv"))
 
 samples$ID <- sub(".*/","",sub("_L00[1,2]","",sub("[1,2]_[1].*_.*DXX_","", sub("_dual.*","",samples$ScilifeID))))  
 
+samples$Batch <- factor(sprintf("B%d",grepl("P7614",samples$ScilifeID)+1))
 #' # Raw data
 filelist <- list.files(here("data/Salmon"), 
                           recursive = TRUE, 
@@ -58,16 +62,10 @@ names(filelist) <- samples$ID
 
 counts <- suppressMessages(round(tximport(files = filelist, type = "salmon",txOut=TRUE)$counts))
 
-#' #bullshit
-
-#counts_new <- do.call(
- # cbind,
-  #lapply(split.data.frame(t(counts),
-   #                       samples$ID),
-    #     colSums))
-
-#samples_new <- samples[,-1]
-#samples_new <- samples_new[match(colnames(counts),samples_new$ID),]
+# For the PCA, Use the vst data instead and use colMedians or colMeans
+ tst <- sapply(split.data.frame(t(counts),
+                         samples$Stages),
+         colSums)
 
 #' ## Quality Control
 #' Check how many genes are never expressed
@@ -79,10 +77,10 @@ sprintf("%s%% percent (%s) of %s genes are not expressed",
 
 #' Let us take a look at the sequencing depth, colouring by Stages
 
-dat <- tibble(x=colnames(counts),y=colSums(counts)) %>% 
+dat_s <- tibble(x=colnames(counts),y=colSums(counts)) %>% 
   bind_cols(samples)
 
-ggplot(dat,aes(x,y,fill=samples$Stages)) + geom_col() + 
+ggplot(dat_s,aes(x,y,fill=samples$Stages)) + geom_col() + 
   scale_y_continuous(name="reads") +
   theme(axis.text.x=element_text(angle=90,size=4),axis.title.x=element_blank())
 
@@ -98,16 +96,17 @@ ggplot(melt(log10(rowMeans(counts))),aes(x=value)) +
 
 #' The same is done for the individual samples colored by Batch. 
 
-samples$Batch <- factor(sprintf("B%d",grepl("P7614",samples$ScilifeID)+1))
+dat_b <- as.data.frame(log10(counts)) %>% utils::stack() %>% 
+  mutate(Batch=samples$Batch[match(ind,samples$ID)]) %>% 
+  mutate(Stages=samples$Stages[match(ind,samples$ID)])
 
-plot.multidensity(lapply(1:ncol(counts),function(k){log10(counts)[,k]}),
-                  col=pal[as.integer(samples$Batch)],
-                  legend.x="topright",
-                  legend=levels(samples$Batch),
-                  legend.col=pal[1:nlevels(samples$Batch)],
-                  legend.lwd=2,
-                  main="sample raw counts distribution",
-                  xlab="per gene raw counts (log10)")
+ggplot(dat_b,aes(x=values,group=ind,col=Batch)) + 
+  geom_density() + ggtitle("sample raw counts distribution") +
+  scale_x_continuous(name="per gene raw counts (log10)")
+
+ggplot(dat_b,aes(x=values,group=ind,col=Stages)) + 
+  geom_density() + ggtitle("sample raw counts distribution") +
+  scale_x_continuous(name="per gene raw counts (log10)")
 
 #' ## Export
 dir.create(here("data/analysis/salmon"),showWarnings=FALSE,recursive=TRUE)
@@ -119,7 +118,7 @@ write.csv(counts,file=here("data/analysis/salmon/raw-unormalised-gene-expression
 #' transformation using DESeq2. The dispersion is estimated independently
 #' of the sample tissue and replicate. 
 
-rownames(samples) <- samples$ID
+samples$Stages <- factor(samples$Stages)
 
 dds <- DESeqDataSetFromMatrix(
   countData = counts,
@@ -164,7 +163,7 @@ percent <- round(summary(pc)$importance[2,]*100)
 #' We define the number of variable of the model
 nvar=2
 
-#nlevel=nlevels(dds$MDay) * nlevels(dds$MGenotype)
+nlevel=nlevels(dds$Stages) * nlevels(dds$Batch)
 
 #' We plot the percentage explained by the different components, the
 #' red line represent the number of variable in the model, the orange line
@@ -173,12 +172,12 @@ ggplot(tibble(x=1:length(percent),y=cumsum(percent)),aes(x=x,y=y)) +
   geom_line() + scale_y_continuous("variance explained (%)",limits=c(0,100)) +
   scale_x_continuous("Principal component") + 
   geom_vline(xintercept=nvar,colour="red",linetype="dashed",size=0.5) + 
-  geom_hline(yintercept=cumsum(percent)[nvar],colour="red",linetype="dashed",size=0.5) 
-  #geom_vline(xintercept=nlevel,colour="orange",linetype="dashed",size=0.5) + 
-  #geom_hline(yintercept=cumsum(percent)[nlevel],colour="orange",linetype="dashed",size=0.5)
+  geom_hline(yintercept=cumsum(percent)[nvar],colour="red",linetype="dashed",size=0.5) +
+  geom_vline(xintercept=nlevel,colour="orange",linetype="dashed",size=0.5) + 
+  geom_hline(yintercept=cumsum(percent)[nlevel],colour="orange",linetype="dashed",size=0.5)
   
 #' ### 3 first dimensions
-mar=c(1.1,1.1,1.1,1.1)
+mar=c(5.1,4.1,4.1,2.1)
 
 #' The PCA shows that a large fraction of the variance is 
 #' explained by both variables.
@@ -189,21 +188,19 @@ scatterplot3d(pc$x[,1],
               ylab=paste("Comp. 2 (",percent[2],"%)",sep=""),
               zlab=paste("Comp. 3 (",percent[3],"%)",sep=""),
               color=pal[as.integer(dds$Stages)],
-              pch=c(17:19)[as.integer(dds$Stages)])
+              pch=c(17,19)[as.integer(dds$Batch)])
 legend("topleft",
        fill=pal[1:nlevels(dds$Stages)],
        legend=levels(dds$Stages))
 
 legend("topright",
-       pch=17:19,
+       pch=c(17,19),
        legend=levels(dds$Batch))
 
 par(mar=mar)
 
 #' ### 2D
-pc.dat <- bind_cols(PC1=pc$x[,1],
-                    PC2=pc$x[,2],
-                    samples)
+pc.dat <- cbind(pc$x,samples)
 
 p <- ggplot(pc.dat,aes(x=PC1,y=PC2,col=dds$Stages,shape=dds$Batch,text=dds$ID)) + 
   geom_point(size=2) + 
@@ -213,6 +210,41 @@ ggplotly(p) %>%
   layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
          yaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")))
 
+p <- ggplot(pc.dat,aes(x=PC2,y=PC3,col=dds$Stages,shape=dds$Batch,text=dds$ID)) + 
+  geom_point(size=2) + 
+  ggtitle("Principal Component Analysis",subtitle="variance stabilized counts")
+
+ggplotly(p) %>% 
+  layout(xaxis=list(title=paste("PC2 (",percent[1],"%)",sep="")),
+         yaxis=list(title=paste("PC3 (",percent[2],"%)",sep="")))
+
+p <- ggplot(pc.dat,aes(x=PC1,y=PC3,col=dds$Stages,shape=dds$Batch,text=dds$ID)) + 
+  geom_point(size=2) + 
+  ggtitle("Principal Component Analysis",subtitle="variance stabilized counts")
+
+ggplotly(p) %>% 
+  layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
+         yaxis=list(title=paste("PC3 (",percent[2],"%)",sep="")))
+
+
+p <- ggplot(pc.dat,aes(x=PC1,y=PC4,col=dds$Stages,shape=dds$Batch,text=dds$ID)) + 
+  geom_point(size=2) + 
+  ggtitle("Principal Component Analysis",subtitle="variance stabilized counts")
+
+ggplotly(p) %>% 
+  layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
+         yaxis=list(title=paste("PC4 (",percent[2],"%)",sep="")))
+
+p <- ggplot(pc.dat,aes(x=PC2,y=PC4,col=dds$Stages,shape=dds$Batch,text=dds$ID)) + 
+  geom_point(size=2) + 
+  ggtitle("Principal Component Analysis",subtitle="variance stabilized counts")
+
+ggplotly(p) %>% 
+  layout(xaxis=list(title=paste("PC2 (",percent[1],"%)",sep="")),
+         yaxis=list(title=paste("PC4 (",percent[2],"%)",sep="")))
+
+
+
 #' ### Heatmap
 #' 
 #' Filter for noise
@@ -221,7 +253,7 @@ conds <- factor(paste(samples$Stages,samples$Batch))
 sels <- rangeFeatureSelect(counts=vst,
                            conditions=conds,
                            nrep=3)
-vst.cutoff <- 2
+vst.cutoff <- 10
 
 #' Heatmap of "all" genes
 #' 
@@ -233,6 +265,7 @@ hm <- heatmap.2(t(scale(t(vst[sels[[vst.cutoff+1]],]))),
           col=hpal)
 
 plot(as.hclust(hm$colDendrogram),xlab="",sub="")
+
 
 #' ## Conclusion
 #' CHANGEME

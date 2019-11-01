@@ -27,6 +27,13 @@ time_expression <- expressionSpecificity(exp.mat = vsta[,samples_m$ScilifeID],
                                          tissues = as.character(samples_m$Stages),
                                          output = "complete")
 
+#bla
+plot(density(time_expression[!is.na(time_expression[,"score"]),"score"]))
+boxplot(time_expression[time_expression[,"score"]==1,"maxn"])
+boxplot(time_expression[time_expression[,"score"]==1,"n"])
+boxplot(time_expression[time_expression[,"score"]>=0.9,"n"])
+time_expression[time_expression[,"score"]>=0.9 & time_expression[,"score"]==8,]
+time_expression[time_expression[,"score"]>=0.9 & time_expression[,"n"]==8,]
 #means <- rowMeans2(time_expression,cols = TRUE, na.rm = TRUE)
 means <- rowMeans2(time_expression,
                    cols = is.vector(c("S1","S2","S3","S4","S5","S6","S7","S8")),

@@ -1,6 +1,8 @@
-library(Biostrings)
-library(tidyverse)
-library(here)
+suppressPackageStartupMessages({
+  library(Biostrings)
+  library(tidyverse)
+  library(here)
+})
 dir(here("data/"))
 ref <- readDNAStringSet("data/trinity/Trinity.fasta")
 bla <- sub(" .*","",names(ref))
@@ -46,11 +48,23 @@ transdecoder_index <- left_join(CNCI_read, transdecoder, by = NULL, copy=FALSE)
 transdecoder_tib <- transdecoder_index$Type
 
 final_tibble <- tibble(TRINITY_ID = bla, GC_content = bla_GC, length = length_ref, CNCI = CNCI_tib, PLEK = PLEK_tib, CPC2 = CPC2_tib, Transdecoder = transdecoder_tib)
+#remove the duplicated transcript detected by Salmon before to continue
+final_tibble <-  final_tibble[-c(164348),]
 
+# trying to add time_expression
+stuff <- as_tibble(time_expression)
+stuff_new <- stuff %>% add_column(TRINITY_ID = final_tibble$TRINITY_ID)
+final_tibble_s <- left_join(final_tibble, stuff_new, by = NULL, copy=FALSE)
 
-sbam <- final_tibble %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding")
-#Transdecoder == "complete") 
-#Transdecoder == "internal", Transdecoder == "3prime_partial", Transdecoder == "5prime_partial")
+#filter only coding
+coding <- final_tibble_s %>% filter(length >= 200, CNCI == "coding", PLEK == "coding", CPC2 == "coding")
 
+#filter only non-coding
+non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding")
 
-                  
+#time expression for only non-coding
+
+time_expression_nc <- non_coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n)
+plot(density(time_expression_nc[!is.na(time_expression_nc[,"score"]),"score"]))
+ 
+plot(density(time_expression_nc$score))
