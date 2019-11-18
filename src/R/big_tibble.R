@@ -73,3 +73,14 @@ time_expression_c <- coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5
 time_expression_c_filtered <-  time_expression_c %>% filter(score != "NA")
 plot(density(time_expression_c_filtered$score))
 
+#checking GC_content
+
+GC_50 <- non_coding %>% filter(GC_content >= 0.50)
+GC_40 <- non_coding %>% filter(GC_content >= 0.40)
+GC_less_30 <- non_coding %>% filter(GC_content < 0.30)
+GC_3040 <- non_coding %>% filter(GC_content >= 0.30, GC_content < 0.40)
+
+GC_50c <- coding %>% filter(GC_content >= 0.50)
+GC_40c <- coding %>% filter(GC_content >= 0.40)
+GC_less_30c <- coding %>% filter(GC_content < 0.30)
+GC_3040c <- coding %>% filter(GC_content >= 0.30, GC_content < 0.40)
