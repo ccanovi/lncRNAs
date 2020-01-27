@@ -8,7 +8,7 @@ module load bioinfo-tools blast
 
 ## default args
 mail="camilla.canovi@umu.se"
-in=../swissprot/2019_11/fasta/uniprot_sprot.fasta.gz
+in=../swissprot/2019_11/fasta/uniprot_sprot.fasta
 out=../swissprot/2019_11/indices/blast+
 
 ## create the out dir
