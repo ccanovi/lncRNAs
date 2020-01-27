@@ -18,9 +18,9 @@ salmon.g <- suppressMessages(tximport(files = salmon,
 counts <- round(salmon.g$counts)               
 colnames(counts) <- sub(".*/","",sub("_L00[1,2]_sort.*","",sub("[1,2]_[1].*_.*DXX_","", sub("_dual.*","",salmon))))
 
-load(here("data/analysis/DE/vst-aware.rda"))
 
 # Time specificity
+load(here("data/analysis/DE/vst-aware.rda"))
 source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
 samples_m <- read.csv("doc/samples.csv")
 time_expression <- expressionSpecificity(exp.mat = vsta[,samples_m$ScilifeID],

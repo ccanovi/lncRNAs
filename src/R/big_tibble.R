@@ -38,7 +38,7 @@ transdecoder <- read_table2("data/Transdecoder/Trinity.fasta.transdecoder.IDs.tx
                                                   "Score"=col_character(),
                                                   "Coord"=col_character())) %>% 
   mutate(Transdecoder.ID,Transdecoder.ID=gsub(">| .*","",Transdecoder.ID)) %>%  
-  mutate(Transdecoder.ID,Transcript.ID=gsub("\\.p*","",Transdecoder.ID)) %>% 
+  mutate(Transdecoder.ID,Transcript.ID=gsub("\\.p\\d+","",Transdecoder.ID)) %>% 
   mutate(Type,Type=factor(sub("type:","",Type))) %>% 
   mutate(Score,Score=parse_double(sub(".*=","",Score),locale=locale(decimal_mark = "."))) %>% 
   mutate(Coord,Strand=factor(gsub(".*\\(|\\)","",Coord))) %>% 
@@ -52,6 +52,13 @@ final_tibble <- tibble(TRINITY_ID = bla, GC_content = bla_GC, length = length_re
 final_tibble <-  final_tibble[-c(164348),]
 
 # trying to add time_expression
+load(here("data/analysis/DE/vst-aware.rda"))
+source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
+samples_m <- read.csv("doc/samples.csv")
+time_expression <- expressionSpecificity(exp.mat = vsta[,samples_m$ScilifeID],
+                                         tissues = as.character(samples_m$Stages),
+                                         output = "complete")
+
 stuff <- as_tibble(time_expression)
 stuff_new <- stuff %>% add_column(TRINITY_ID = final_tibble$TRINITY_ID)
 final_tibble_s <- left_join(final_tibble, stuff_new, by = NULL, copy=FALSE)
@@ -61,6 +68,15 @@ coding <- final_tibble_s %>% filter(length >= 200, CNCI == "coding", PLEK == "co
 
 #filter only non-coding
 non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding")
+
+#library(Biostrings)
+#seq <- readDNAStringSet("data/trinity/Trinity.fasta")
+#names(seq) <- sub(" .*","",names(seq))
+#IDs <- non_coding$TRINITY_ID
+#writeXStringSet(seq[IDs],file="/mnt/picea/projects/spruce/nstreet/spruce-lncRNA-network/fasta/lncRNA.fasta")
+
+
+
 
 #time expression for only non-coding
 
@@ -84,3 +100,4 @@ GC_50c <- coding %>% filter(GC_content >= 0.50)
 GC_40c <- coding %>% filter(GC_content >= 0.40)
 GC_less_30c <- coding %>% filter(GC_content < 0.30)
 GC_3040c <- coding %>% filter(GC_content >= 0.30, GC_content < 0.40)
+
