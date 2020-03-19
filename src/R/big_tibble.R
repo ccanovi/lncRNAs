@@ -2,7 +2,8 @@ suppressPackageStartupMessages({
   library(Biostrings)
   library(tidyverse)
   library(here)
-})
+  library(magrittr)
+  })
 dir(here("data/"))
 ref <- readDNAStringSet("data/trinity/Trinity.fasta")
 bla <- sub(" .*","",names(ref))
@@ -64,11 +65,12 @@ stuff_new <- stuff %>% add_column(TRINITY_ID = final_tibble$TRINITY_ID)
 final_tibble_s <- left_join(final_tibble, stuff_new, by = NULL, copy=FALSE)
 
 #filter only coding
-coding <- final_tibble_s %>% filter(length >= 200, CNCI == "coding", PLEK == "coding", CPC2 == "coding")
+coding <- final_tibble_s %>% filter(length >= 200, CNCI == "coding", PLEK == "coding", CPC2 == "coding") %>% 
+  rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.","")))
 
 #filter only non-coding
-non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding")
-
+non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding") %>% 
+  rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.","")))
 #library(Biostrings)
 #seq <- readDNAStringSet("data/trinity/Trinity.fasta")
 #names(seq) <- sub(" .*","",names(seq))
@@ -80,16 +82,61 @@ non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK
 
 #time expression for only non-coding
 
-time_expression_nc <- non_coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n)
+time_expression_nc <- non_coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n, peak)
 time_expression_nc_filtered <-  time_expression_nc %>% filter(score != "NA")
-plot(density(time_expression_nc_filtered$score))
+plot(density(time_expression_nc_filtered$score), 
+     xlab="stage_specificity",
+     ylab="density",
+     main="NON_CODING",
+     lwd=3,
+     col.main="red",
+     col.lab="blue",
+     font.main=2,
+     font.lab=2,
+     cex.main=3,
+     cex.lab=2.5)
+
+barplot(table(time_expression_nc_filtered$peak))
+barplot(table(time_expression_nc_filtered %>% filter(score > 0.9) %>% select(peak)))
+time_expression_nc_filtered %<>% left_join(tibble(TRINITY_ID=rownames(vsta),avgexp=rowMaxs(vsta)))
+plot(density(as.matrix(time_expression_nc_filtered %>% filter(score > 0.9) %>% select(avgexp))))
+plot(density(as.matrix(time_expression_nc_filtered %>% filter(score <= 0.9) %>% select(avgexp))))
+
 
 #time expression for only coding
-time_expression_c <- coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n)
+time_expression_c <- coding %>% select(TRINITY_ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n, peak)
 time_expression_c_filtered <-  time_expression_c %>% filter(score != "NA")
 plot(density(time_expression_c_filtered$score))
+plot(density(time_expression_c_filtered$score), 
+     xlab="stage_specificity",
+     ylab="density",
+     main="CODING",
+     lwd=3,
+     col.main="red",
+     col.lab="blue",
+     font.main=2,
+     font.lab=2,
+     cex.main=3,
+     cex.lab=2.5)
+barplot(table(time_expression_c_filtered$peak))
+barplot(table(time_expression_c_filtered %>% filter(score > 0.9) %>% select(peak)))
 
-#checking GC_content
+time_expression_c_filtered %<>% left_join(tibble(TRINITY_ID=rownames(vsta),avgexp=rowMaxs(vsta)))
+plot(density(as.matrix(time_expression_c_filtered %>% filter(score > 0.9) %>% select(avgexp))))
+plot(density(as.matrix(time_expression_c_filtered %>% filter(score <= 0.9 ) %>% select(avgexp))))
+
+boxplot(list(non_coding_specific=as.matrix(time_expression_nc_filtered %>% filter(score > 0.9) %>% select(avgexp)),
+  non_coding_aspecific=as.matrix(time_expression_nc_filtered %>% filter(score <= 0.9) %>% select(avgexp)),
+  coding_specific=as.matrix(time_expression_c_filtered %>% filter(score > 0.9) %>% select(avgexp)),
+  coding_aspecific=as.matrix(time_expression_c_filtered %>% filter(score <= 0.9 ) %>% select(avgexp))),log="y",
+  ylab="expression",
+  col=c("orange","plum"),
+  font.lab=2,
+  cex.lab=1.5)
+
+
+
+  #checking GC_content
 
 GC_50 <- non_coding %>% filter(GC_content >= 0.50)
 GC_40 <- non_coding %>% filter(GC_content >= 0.40)
