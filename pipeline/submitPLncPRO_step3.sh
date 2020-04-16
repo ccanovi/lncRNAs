@@ -18,4 +18,4 @@ fi
 
 # submit the job
 sbatch -e $out/plncpro_step2.err -o $out/plncpro_step2.out --mem=16G \
---mail-user=$email -A $proj -t 2-00:00:00 ../src/bash/runPLncPRO_step2.sh
+--mail-user=$email -A $proj -t 2-00:00:00 ../src/bash/runPLncPRO_step3.sh
