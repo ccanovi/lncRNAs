@@ -90,8 +90,8 @@ counts <- suppressMessages(round(tximport(files = filelist,
                                   type = "salmon",
                                   txOut=TRUE)$counts))
 
-linc_read <- read_delim(here("doc/time_expression_nc_last.tsv",
-                       delim = " "))
+linc_read <- read_delim("~/Git/lncRNAs/doc/time_expression_nc_last.tsv",
+                       delim = " ")
 
 linc <- linc_read$Transcript.ID
 
@@ -222,7 +222,7 @@ vst <- assay(vsd)
 vst <- vst - min(vst)
 meanSdPlot(vst[rowSums(vst)>0,])
 
-
+save(vst,file=here("data/analysis/DE/vst-blind_linc.rda"))
 #' ## QC on the normalised data
 #' ### PCA
 #pc <- prcomp(t(assay(zinb, 2)))
