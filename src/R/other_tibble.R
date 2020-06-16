@@ -45,7 +45,7 @@ zero_point <- rowMads(time_expression)
 
 #GMAP
 
-gmap <- read_table2("data/GMAP/GMAP_all.gff3",
+gmap_old <- read_table2("data/GMAP/GMAP_all.gff3",
                     skip = 1,
                     col_names = c("Gene","X2","X3",
                                   "start","end","X6","strand","X8","path"),
@@ -57,6 +57,25 @@ gmap <- read_table2("data/GMAP/GMAP_all.gff3",
                         mutate(path,Path=factor(gsub(";.*","",path))) %>% 
                         mutate(path,TRINITY_ID=factor(gsub(".*;|.*=","",path))) 
 
+gmap <- read_table2("data/GMAP/GMAP_all.gff3",
+                                skip = 1,
+                                col_names = c("Gene","X2","X3",
+                                              "start","end","X6","strand","X8","path"),
+                                col_types = cols_only("Gene" = col_character(),
+                                                      "start" = col_double(),
+                                                      "end" = col_double(),
+                                                      "strand" = col_character(),
+                                                      "path" = col_character())) %>% 
+  separate(path,
+           sep = ";",
+           into = c("path_total","Transcript.ID")) %>% 
+  mutate(Transcript.ID,Transcript.ID=gsub(".*=","",Transcript.ID)) %>% 
+  mutate(path_total,path_total=gsub(".*=","",path_total))
+
+thingy <- read_table2("data/GMAP/GMAP_all.gff3")
+  
+gmap_tib <- gmap %>% select("Gene","path_total","Transcript.ID")
+
 gmap_mult <- read_table2("data/GMAP/mult_gene",
                          col_names = c("Gene","X2","X3",
                                        "start","end","X6","strand","X8","path"),
@@ -64,9 +83,16 @@ gmap_mult <- read_table2("data/GMAP/mult_gene",
                                                "start" = col_double(),
                                                "end" = col_double(),
                                                "strand" = col_character(),
-                                               "path" = col_character()))
+                                               "path" = col_character())) %>% 
+  separate(path,
+           sep = ";",
+           into = c("path_mult","Transcript.ID")) %>% 
+  mutate(Transcript.ID,Transcript.ID=gsub(".*=","",Transcript.ID)) %>% 
+  mutate(path_mult,path_mult=gsub(".*=","",path_mult))
 
+gmap_mult_tib <- gmap_mult %>% select("Gene","path_mult","Transcript.ID")
 
+partial <- left_join(gmap_tib, gmap_mult_tib, by = NULL, copy=FALSE)
 gmap_uniq <- read_table2("data/GMAP/uniq_gene",
                          col_names = c("Gene","X2","X3",
                                        "start","end","X6","strand","X8","path"),
@@ -74,8 +100,16 @@ gmap_uniq <- read_table2("data/GMAP/uniq_gene",
                                                "start" = col_double(),
                                                "end" = col_double(),
                                                "strand" = col_character(),
-                                               "path" = col_character()))
+                                               "path" = col_character())) %>% 
+  separate(path,
+           sep = ";",
+           into = c("path_uniq","Transcript.ID")) %>% 
+  mutate(Transcript.ID,Transcript.ID=gsub(".*=","",Transcript.ID)) %>% 
+  mutate(path_uniq,path_uniq=gsub(".*=","",path_uniq))
 
+gmap_uniq_tib <- gmap_uniq %>% select("Gene","path_uniq","Transcript.ID")
+
+partial2 <- left_join(partial, gmap_uniq_tib, by = NULL, copy=FALSE)
 
 gmap_transloc <- read_table2("data/GMAP/transloc_gene",
                              col_names = c("Gene","X2","X3",
@@ -84,15 +118,23 @@ gmap_transloc <- read_table2("data/GMAP/transloc_gene",
                                                    "start" = col_double(),
                                                    "end" = col_double(),
                                                    "strand" = col_character(),
-                                                   "path" = col_character()))
+                                                   "path" = col_character())) %>% 
+  separate(path,
+           sep = ";",
+           into = c("path_transloc","Transcript.ID")) %>% 
+  mutate(Transcript.ID,Transcript.ID=gsub(".*=","",Transcript.ID)) %>% 
+  mutate(path_transloc,path_transloc=gsub(".*=","",path_transloc))
 
+gmap_transloc_tib <- gmap_transloc %>% select("Gene","path_transloc","Transcript.ID")
+
+gmap_total <- left_join(partial2, gmap_transloc_tib, by = NULL, copy=FALSE)
 
 #BedToolsIntersect
 
 intersect <- read_table2("data/GMAP/BedToolsIntersect/GMAP_all-Eugene-gene-only.tsv",
                       col_names = c("Gene","X2","X3",
                                     "start","end","X6","strand","X8","path","gene_intersection","X11","X12",
-                                    "start_overlap","end_overlap","X15","strand_overlap","X17","GENE_ID","total_overlap"),
+                                    "start_overlap","end_overlap","X15","strand_intersect","X17","GENE_ID","total_intersect"),
                       col_types = cols_only("Gene" = col_character(),
                                             "start" = col_double(),
                                             "end" = col_double(),
@@ -101,9 +143,46 @@ intersect <- read_table2("data/GMAP/BedToolsIntersect/GMAP_all-Eugene-gene-only.
                                             "gene_intersection" = col_character(),
                                             "start_overlap" = col_double(),
                                             "end_overlap" = col_double(),
-                                            "strand_overlap" = col_character(),
+                                            "strand_intersect" = col_character(),
                                             "GENE_ID" = col_character(),
-                                            "total_overlap" = col_character()))
+                                            "total_intersect" = col_character())) %>% 
+  separate(path,
+           sep = ";",
+           into = c("path_intersect","Transcript.ID")) %>% 
+  mutate(Transcript.ID,Transcript.ID=gsub(".*=","",Transcript.ID)) %>% 
+  mutate(path_intersect,path_intersect=gsub(".*=","",path_intersect)) %>% 
+  mutate(GENE_ID,GENE_ID=gsub(".*=","",GENE_ID))
+
+bla_intersect <- intersect %>% select("Gene","path_intersect","Transcript.ID","strand_intersect","total_intersect")
+
+intersect_tib <- left_join(gmap_total, bla_intersect, by = NULL, copy=FALSE)
+
+
+intersect2 <- read_table2("data/GMAP/BedToolsIntersect2/GMAP_all-Eugene-gene-only.tsv",
+                          col_names = c("Gene","X2","X3",
+                                        "start","end","X6","strand","X8","path","gene_intersection","X11","X12",
+                                        "start_overlap","end_overlap","X15","strand_intersect","X17","GENE_ID","total_intersect"),
+                          col_types = cols_only("Gene" = col_character(),
+                                                "start" = col_double(),
+                                                "end" = col_double(),
+                                                "strand" = col_character(),
+                                                "path" = col_character(),
+                                                "gene_intersection" = col_character(),
+                                                "start_overlap" = col_double(),
+                                                "end_overlap" = col_double(),
+                                                "strand_intersect" = col_character(),
+                                                "GENE_ID" = col_character(),
+                                                "total_intersect" = col_character())) %>% 
+  separate(path,
+           sep = ";",
+           into = c("path_intersect","Transcript.ID")) %>% 
+  mutate(Transcript.ID,Transcript.ID=gsub(".*=","",Transcript.ID)) %>% 
+  mutate(path_intersect,path_intersect=gsub(".*=","",path_intersect)) %>% 
+  mutate(GENE_ID,GENE_ID=gsub(".*=","",GENE_ID))
+
+bla_intersect <- intersect2 %>% select("Gene","path_intersect","Transcript.ID","strand_intersect","total_intersect")
+
+intersect_tib <- left_join(gmap_total, bla_intersect, by = NULL, copy=FALSE)
 
 #BedToolsSubtract
 
@@ -122,7 +201,45 @@ subtract <- read_table2("data/GMAP/BedToolsSubtract/GMAP_all-Eugene-gene-only_no
                                               "start_subtract" = col_double(),
                                               "end_subtract" = col_double(),
                                               "strand_subtract" = col_character(),
-                                              "total_subtract" = col_character()))
+                                              "total_subtract" = col_character())) %>% 
+  separate(path,
+           sep = ";",
+           into = c("path_subtract","Transcript.ID")) %>% 
+  mutate(Transcript.ID,Transcript.ID=gsub(".*=","",Transcript.ID)) %>% 
+  mutate(path_subtract,path_subtract=gsub(".*=","",path_subtract)) 
+
+bla_sub <- subtract %>% select("Gene","path_subtract","Transcript.ID","strand_subtract","total_subtract")
+
+gmap_final <- left_join(intersect_tib, bla_sub, by = NULL, copy=FALSE)
+
+#trmap Cuffmerge
+trmap <- read_table2("data/trmap/CuffMerge/trmap.fasta_filt",
+                     col_names = c("type","Gene","strand",
+                                   "start","end",
+                                   "exon","position"),
+                     col_types = cols_only("type"= col_character(),
+                                           "Gene" = col_character(),
+                                           "strand" = col_character(),
+                                           "start" = col_double(),
+                                           "end" = col_double(),
+                                           "exon" = col_character(),
+                                           "position" = col_character()))
+
+trmap_u <- trmap %>% filter(type == "r")
+
+trmap_uniq <- read_delim("data/trmap/trinity/uniq/trmapIDs.txt",
+                         delim = "/",
+                         col_names = "Transcript.ID")
+
+trmap_mult <- read_delim("data/trmap/trinity/mult/trmapIDs.txt",
+                         delim = "/",
+                         col_names = "Transcript.ID")
+                          
+trmap_transloc <- read_delim("data/trmap/trinity/transloc/trmapIDs.txt",
+                             delim = "/",
+                             col_names = "Transcript.ID")
+
+
 # Diamond
 
 #diamond <- read_table2("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz",

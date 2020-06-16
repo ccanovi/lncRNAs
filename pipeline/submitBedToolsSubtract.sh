@@ -25,4 +25,4 @@ fi
 
 
 ## submit the job
-sbatch --mail-user=$mail -e $out/BedToolsSubtract.err -o $out/BedToolsSubtract.out -A $proj ../UPSCb-common/pipeline/runBedToolsSubtract.sh $in $ref $out -s -wo 
+sbatch --mail-user=$mail -e $out/BedToolsSubtract.err -o $out/BedToolsSubtract.out -A $proj ../UPSCb-common/pipeline/runBedToolsSubtract.sh $in $ref $out -wo 
