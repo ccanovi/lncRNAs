@@ -58,6 +58,7 @@ sample_info_miRNA <- sample_info_miRNA[sel,]
 colnames(miRNA) <- colnames(sel_genes_TEs)[match(substr(sample_info_miRNA$ID,8,9),substr(samples$ID,8,9))]
 #' combine the mRNA, lncRNA and miRNA
 dat <- bind_rows(sel_genes_TEs,sel_linc,miRNA)
+dat[is.na(dat)] <- 0
 #' # Export
 dir.create(here("data/analysis/seidr"),showWarnings=FALSE)
 #' * gene by column, without names matrix
