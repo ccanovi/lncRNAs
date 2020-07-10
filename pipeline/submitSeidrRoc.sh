@@ -21,12 +21,12 @@ for j in {1..10}; do
 # for backbone files
   sbatch -A $account -o $out/${j}-percent.out \
   -e $out/${j}-percent.err -J roc-${j}  \
-  ../UPSCb-common/pipeline/runSeidrRoc.sh -x $gs_neg $backbone/backbone-${j}-percent.sf \
- $gs_pos $out/${j}-percent.roc
+  ../UPSCb-common/pipeline/runSeidrRoc.sh $backbone/backbone-${j}-percent.sf \
+ $gs_pos $gs_neg $out/${j}-percent.roc
 done
 
 # for aggregated files
 sbatch -A $account -o $out/aggregated.out \
   -e $out/aggregated.err -J roc-aggr  \
-  ../UPSCb-common/pipeline/runSeidrRoc.sh -x $gs_neg $aggregate $gs_pos \
- $out/aggregated.roc
+  ../UPSCb-common/pipeline/runSeidrRoc.sh $aggregate $gs_pos \
+ $gs_neg $out/aggregated.roc
