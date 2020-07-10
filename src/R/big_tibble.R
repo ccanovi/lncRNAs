@@ -81,28 +81,30 @@ blabla <- anti_join(final_tibble_bla, trmap_mult, by = NULL, copy=FALSE)
 blabla2 <- anti_join(blabla, trmap_uniq, by = NULL, copy=FALSE)
 final_tibble <- anti_join(blabla2, trmap_transloc, by = NULL, copy=FALSE)
 
+#filter only coding
+coding <- final_tibble %>% filter(length >= 200, CNCI == "coding", PLEK == "coding", CPC2 == "coding", PLncPRO == "1", Transdecoder != "NA") 
+write_delim(x = coding, path = "doc/coding.tsv", delim = " ")
+
+#filter only non-coding
+non_coding_noNA <- final_tibble %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding", PLncPRO == "0", Transdecoder != "NA") 
+non_coding_total <- final_tibble %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding", PLncPRO == "0")
+non_coding <- anti_join(non_coding_total,non_coding_noNA,by = NULL, copy=FALSE)
+write_delim(x = non_coding, path = "doc/non_coding.tsv", delim = " ")
 
 # trying to add time_expression
-load(here("data/analysis/DE/vst-aware.rda"))
+load(here("data/analysis/DE/vst-aware_B2.rda"))
 source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
-samples_m <- read.csv("doc/samples.csv")
-time_expression <- expressionSpecificity(exp.mat = vsta[,samples_m$SampleID],
+samples_m <- read.csv("doc/samples_final.csv")
+time_expression <- expressionSpecificity(exp.mat = vsta[,samples_m$ID],
                                          tissues = as.character(samples_m$Stages),
                                          output = "complete")
 
 stuff <- as_tibble(time_expression)
 stuff_new <- stuff %>% add_column(Transcript.ID = final_tibble_bla$Transcript.ID)
-final_tibble_s <- left_join(final_tibble, stuff_new, by = NULL, copy=FALSE)
-
-#filter only coding
-coding <- final_tibble_s %>% filter(length >= 200, CNCI == "coding", PLEK == "coding", CPC2 == "coding", PLncPRO == "1", Transdecoder != "NA") %>% 
+final_tibble_nc <- left_join(non_coding, stuff_new, by = NULL, copy=FALSE) %>% 
   rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.","")))
-
-#filter only non-coding
-
-non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK == "noncoding", CPC2 == "noncoding", PLncPRO == "0") %>% 
+final_tibble_c <- left_join(coding, stuff_new, by = NULL, copy=FALSE) %>% 
   rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.","")))
-
 
 #library(Biostrings)
 #seq <- readDNAStringSet("data/trinity/Trinity.fasta")
@@ -111,22 +113,14 @@ non_coding <- final_tibble_s %>% filter(length >= 200, CNCI == "noncoding", PLEK
 #writeXStringSet(seq[IDs],file="/mnt/picea/projects/spruce/nstreet/spruce-lncRNA-network/fasta/lncRNA.fasta")
 
 
-
 #time expression for only non-coding
-
-time_expression_nc <- non_coding %>% select(Transcript.ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n, peak)
+time_expression_nc <- final_tibble_nc %>% select(Transcript.ID, score,S1, S2, S3, S4, S5, S6, S7, S8,maxn, n, peak)
 time_expression_nc_filtered <-  time_expression_nc %>% filter(score != "NA")
-
-noNaN_batch1 <- time_expression_nc_filtered %>% filter(S0 != "NaN",S9 != "NaN")
-no_batch1 <- anti_join(time_expression_nc_filtered,noNaN_batch1, by = NULL, copy=FALSE)
-time_expression_nc_last <- no_batch1 %>% select(-S0,-S9)
-
-
-write_delim(x = time_expression_nc_last, path = "doc/time_expression_nc_last.tsv", delim = " ")
+write_delim(x = time_expression_nc_filtered, path = "doc/time_expression_nc_filtered.tsv", delim = " ")
 
 
 par(bg="orange")
-plot(density(time_expression_nc_last$score), 
+plot(density(time_expression_nc_filtered$score), 
      xlab="stage_specificity",
      ylab="density",
      main="NON_CODING",
@@ -136,22 +130,17 @@ plot(density(time_expression_nc_last$score),
      cex.main=3,
      cex.lab=2.5)
 
-barplot(table(time_expression_nc_last$peak))
-barplot(table(time_expression_nc_last %>% filter(score > 0.9) %>% select(peak)))
-time_expression_nc_last %<>% left_join(tibble(Transcript.ID=rownames(vsta),avgexp=rowMaxs(vsta)))
-plot(density(as.matrix(time_expression_nc_last %>% filter(score > 0.9) %>% select(avgexp))))
-plot(density(as.matrix(time_expression_nc_last %>% filter(score <= 0.9) %>% select(avgexp))))
+barplot(table(time_expression_nc_filtered$peak))
+barplot(table(time_expression_nc_filtered %>% filter(score > 0.9) %>% select(peak)))
+time_expression_nc_filtered %<>% left_join(tibble(Transcript.ID=rownames(vsta),avgexp=rowMaxs(vsta)))
+plot(density(as.matrix(time_expression_nc_filtered %>% filter(score > 0.9) %>% select(avgexp))))
+plot(density(as.matrix(time_expression_nc_filtered %>% filter(score <= 0.9) %>% select(avgexp))))
 
 
 #time expression for only coding
-time_expression_c <- coding %>% select(Transcript.ID, score, S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, maxn, n, peak)
+time_expression_c <- final_tibble_c %>% select(Transcript.ID, score,S1, S2, S3, S4, S5, S6, S7, S8,maxn, n, peak)
 time_expression_c_filtered <-  time_expression_c %>% filter(score != "NA")
-
-noNaN_batch1 <- time_expression_c_filtered %>% filter(S0 != "NaN",S9 != "NaN")
-no_batch1 <- anti_join(time_expression_c_filtered,noNaN_batch1, by = NULL, copy=FALSE)
-time_expression_c_last <- no_batch1 %>% select(-S0,-S9)
-
-write_delim(x = time_expression_c_last, path = "doc/time_expression_c_last.tsv", delim = " ")
+write_delim(x = time_expression_c_filtered, path = "doc/time_expression_c_filtered.tsv", delim = " ")
 
 
 par(bg="plum")
@@ -164,24 +153,57 @@ plot(density(time_expression_c_filtered$score),
      font.lab=2,
      cex.main=3,
      cex.lab=2.5)
-barplot(table(time_expression_c_last$peak))
-barplot(table(time_expression_c_last %>% filter(score > 0.9) %>% select(peak)))
+barplot(table(time_expression_c_filtered$peak))
+barplot(table(time_expression_c_filtered %>% filter(score > 0.9) %>% select(peak)))
 
-time_expression_c_last %<>% left_join(tibble(Transcript.ID=rownames(vsta),avgexp=rowMaxs(vsta)))
-plot(density(as.matrix(time_expression_c_last %>% filter(score > 0.9) %>% select(avgexp))))
-plot(density(as.matrix(time_expression_c_last %>% filter(score <= 0.9 ) %>% select(avgexp))))
+time_expression_c_filtered %<>% left_join(tibble(Transcript.ID=rownames(vsta),avgexp=rowMaxs(vsta)))
+plot(density(as.matrix(time_expression_c_filtered %>% filter(score > 0.9) %>% select(avgexp))))
+plot(density(as.matrix(time_expression_c_filtered %>% filter(score <= 0.9 ) %>% select(avgexp))))
 
 par(bg="white")
-boxplot(list(non_coding_specific=as.matrix(time_expression_nc_last %>% filter(score > 0.9) %>% select(avgexp)),
-  non_coding_aspecific=as.matrix(time_expression_nc_last %>% filter(score <= 0.9) %>% select(avgexp)),
-  coding_specific=as.matrix(time_expression_c_last %>% filter(score > 0.9) %>% select(avgexp)),
-  coding_aspecific=as.matrix(time_expression_c_last %>% filter(score <= 0.9 ) %>% select(avgexp))),log="y",
+boxplot(list(non_coding_specific=as.matrix(time_expression_nc_filtered %>% filter(score > 0.9) %>% select(avgexp)),
+  non_coding_aspecific=as.matrix(time_expression_nc_filtered %>% filter(score <= 0.9) %>% select(avgexp)),
+  coding_specific=as.matrix(time_expression_c_filtered %>% filter(score > 0.9) %>% select(avgexp)),
+  coding_aspecific=as.matrix(time_expression_c_filtered %>% filter(score <= 0.9 ) %>% select(avgexp))),log="y",
   ylab="expression",
   col=c(rep("orange",1,2),rep("plum",3,4)),
   font.lab=2,
   cex.lab=1.5)
 
+# trying to add time_expression only for lincRNAs
+source(here("UPSCb-common/src/R/featureSelection.R"))
+vst_linc <- read_tsv(here("data/analysis/DE/vst-aware_linc.tsv"),
+                     col_types=cols(
+                       .default = col_double(),
+                       ID = col_character())) %>% 
+  column_to_rownames("ID")
+samples_m <- read.csv("doc/samples_B2.csv")
+sels_linc <- rangeFeatureSelect(counts=as.matrix(vst_linc),
+                                conditions=factor(samples_m$Stages),
+                                nrep=3)
+vst.cutoff <- 1
+linc <- vst_linc[sels_linc[[vst.cutoff + 1]],]
+source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
+time_expression_linc <- expressionSpecificity(exp.mat = linc[,samples_m$ID],
+                                         tissues = as.character(samples_m$Stages),
+                                         output = "complete")
 
+time_expression_linc <- as_tibble(time_expression_linc) %>% 
+  rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.","")))
+
+par(bg="orange")
+plot(density(time_expression_linc$score), 
+     xlab="stage_specificity",
+     ylab="density",
+     main="NON_CODING",
+     lwd=3,
+     font.main=2,
+     font.lab=2,
+     cex.main=3,
+     cex.lab=2.5)
+
+barplot(table(time_expression_linc$peak))
+barplot(table(time_expression_linc %>% filter(score > 0.9) %>% select(peak)))
 
 #checking GC_content
 

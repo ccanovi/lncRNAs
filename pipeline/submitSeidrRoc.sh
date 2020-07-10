@@ -9,8 +9,8 @@ module load bioinfo-tools seidr-devel
 aggregate=$(realpath ../data/seidr/aggregated/aggregated.sf)
 backbone=$(realpath ../data/seidr/backbone)
 out=$(realpath ../data/seidr/roc)
-gs_pos=$(realpath ../data/seidr/gold_standard/Picea-abies_KEGG-based-positive-gold-standard.tsv)
-gs_neg=$(realpath ../data/seidr/gold_standard/Picea-abies_KEGG-based-negative-gold-standard.tsv)
+gs_pos=$(realpath ../data/seidr/goldStandard/Picea-abies_KEGG-based-positive-gold-standard.tsv)
+gs_neg=$(realpath ../data/seidr/goldStandard/Picea-abies_KEGG-based-negative-gold-standard.tsv)
 
 if [ ! -d $out ]; then
   mkdir -p $out
@@ -21,12 +21,12 @@ for j in {1..10}; do
 # for backbone files
   sbatch -A $account -o $out/${j}-percent.out \
   -e $out/${j}-percent.err -J roc-${j}  \
-  ./runSeidrRoc.sh $backbone/backbone-${j}-percent.sf \
- $gs_pos $gs_neg $out/${j}-percent.roc
+  ../UPSCb-common/pipeline/runSeidrRoc.sh -x $gs_neg $backbone/backbone-${j}-percent.sf \
+ $gs_pos $out/${j}-percent.roc
 done
 
 # for aggregated files
-  sbatch -A $account -o $out/aggregated.out \
+sbatch -A $account -o $out/aggregated.out \
   -e $out/aggregated.err -J roc-aggr  \
-  ./runSeidrRoc.sh $aggregate $gs_pos \
- $gs_neg $out/aggregated.roc
+  ../UPSCb-common/pipeline/runSeidrRoc.sh -x $gs_neg $aggregate $gs_pos \
+ $out/aggregated.roc

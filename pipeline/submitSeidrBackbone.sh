@@ -19,7 +19,7 @@ fi
 for i in {0..9}; do
   j=$(expr $i + 1)
   sbatch -A $account -o $out/backbone-${j}-percent.out \
-  -e $out/backbone-${j}-percent.err -J bb-${j}  \
+  -e $out/backbone-${j}-percent.err -J bb-${j} \
   ../UPSCb-common/pipeline/runSeidrBackbone.sh $network ${thresholds[$i]} \
   $out/backbone-${j}-percent.sf
 done
