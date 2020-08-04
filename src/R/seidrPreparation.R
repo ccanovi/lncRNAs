@@ -59,6 +59,13 @@ colnames(miRNA) <- colnames(sel_genes_TEs)[match(substr(sample_info_miRNA$ID,8,9
 #' combine the mRNA, lncRNA and miRNA
 dat <- bind_rows(sel_genes_TEs,sel_linc,miRNA)
 dat[is.na(dat)] <- 0
+
+#write the tsv to do netwok analysis on Cytoscape
+#ID <- rownames(dat)
+#dat <- cbind(ID,dat)
+#dat_tibble <- as_tibble(dat)
+#dat_tibble$ID <- sub("\\.1$","",dat_tibble$ID)
+#write_tsv(dat_tibble,path=here("doc/network_matrix.tsv"))
 #' # Export
 dir.create(here("data/analysis/seidr"),showWarnings=FALSE)
 #' * gene by column, without names matrix
