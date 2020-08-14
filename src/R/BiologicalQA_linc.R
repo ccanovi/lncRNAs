@@ -165,6 +165,12 @@ save(vsta,file=here("data/analysis/DE/vst-aware_linc.rda"))
 #vsta <- cbind(ID,vsta)
 #vsta_tibble <- as_tibble(vsta)
 #write_tsv(vsta_tibble,path=here("data/analysis/DE/vst-aware_linc.tsv"))
+#thing <- read_tsv(here("data/analysis/DE/vst-aware_linc.tsv"))
+#library(Biostrings)
+#seq <- readDNAStringSet("data/trinity/Trinity.fasta")
+#names(seq) <- sub(" .*","",names(seq))
+#IDs <- thing$ID
+#writeXStringSet(seq[IDs],file="~/Git/lncRNAs/data/analysis/DE/linc_all.fasta")
 
 #' * Validation
 

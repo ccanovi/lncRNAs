@@ -28,6 +28,6 @@ fi
 
 # for aggregated files
 sbatch -A $account --mail-user $email -o $out/aggregated.out \
-  -e $out/aggregated.err -J roc-aggr  \
+  -e $out/aggregated.err -J roc-aggr  --mem=100G \
   ../UPSCb-common/pipeline/runSeidrRoc.sh $aggregate $gs_pos \
  $gs_neg $out/aggregated.roc
