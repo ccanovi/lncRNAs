@@ -189,7 +189,8 @@ time_expression_linc <- expressionSpecificity(exp.mat = linc[,samples_m$ID],
                                          output = "complete")
 
 time_expression_linc <- as_tibble(time_expression_linc) %>% 
-  rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.","")))
+  rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.",""))) %>% 
+  add_column
 
 par(bg="orange")
 plot(density(time_expression_linc$score), 
@@ -204,6 +205,24 @@ plot(density(time_expression_linc$score),
 
 barplot(table(time_expression_linc$peak))
 barplot(table(time_expression_linc %>% filter(score > 0.9) %>% select(peak)))
+
+#add time_expression for the matrix of the network
+
+network <- read_tsv(here("doc/network_matrix.tsv"))
+samples_m <- read.csv("doc/samples_B2.csv")
+
+source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
+time_expression_network <- expressionSpecificity(exp.mat = network[,samples_m$ID],
+                                              tissues = as.character(samples_m$Stages),
+                                              output = "complete")
+
+time_expression_network <- as_tibble(time_expression_network) %>% 
+  rename_if(grepl("aij",colnames(.)),funs(str_replace(.,"aij\\.",""))) %>% 
+  add_column(network$ID)
+
+network_tibble <- time_expression_network %>% select(S1, S2, S3, S4, S5, S6, S7, S8,peak,"network$ID")
+write_tsv(network_tibble,path=here("doc/tissue_specificity_network.tsv"))
+
 
 #checking GC_content
 
