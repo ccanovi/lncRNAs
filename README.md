@@ -6,6 +6,8 @@ Stuff useful for the pipeline
 ln -s /mnt/picea/storage/reference/Swiss-Prot swissprot
 ln -s /mnt/picea/projects/spruce/uegertsdotter/22_Somatic_Embryogenesis_Project/lncRNAs data
 ln -s /mnt/picea/projects/spruce/nstreet/sRNA/SE sRNA
+ln -s /mnt/picea/storage/reference/Picea-abies/v1.0 reference
+ln -s /mnt/picea/storage/reference/PlantGenIE .
 ```
 
 ## Databases
