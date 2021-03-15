@@ -1,6 +1,7 @@
 #!/bin/bash -l
 
 account=u2015037
+email=camilla.canovi@umu.se
 
 # Load the tools
 module load bioinfo-tools seidr-devel
@@ -17,16 +18,16 @@ if [ ! -d $out ]; then
 fi
 
 # submit
-for j in {1..10}; do
+#for j in {1..10}; do
 # for backbone files
-  sbatch -A $account -o $out/${j}-percent.out \
-  -e $out/${j}-percent.err -J roc-${j}  \
-  ../UPSCb-common/pipeline/runSeidrRoc.sh $backbone/backbone-${j}-percent.sf \
- $gs_pos $gs_neg $out/${j}-percent.roc
-done
+#  sbatch -A $account -o $out/${j}-percent.out \
+#  -e $out/${j}-percent.err -J roc-${j}  \
+#  ../UPSCb-common/pipeline/runSeidrRoc.sh $backbone/backbone-${j}-percent.sf \
+# $gs_pos $gs_neg $out/${j}-percent.roc
+# done
 
 # for aggregated files
-sbatch -A $account -o $out/aggregated.out \
-  -e $out/aggregated.err -J roc-aggr  \
+sbatch -A $account --mail-user $email -o $out/aggregated.out \
+  -e $out/aggregated.err -J roc-aggr  --mem=100G \
   ../UPSCb-common/pipeline/runSeidrRoc.sh $aggregate $gs_pos \
  $gs_neg $out/aggregated.roc
