@@ -1,5 +1,5 @@
 #' ---
-#' title: "Genes+TEs Biological QA"
+#' title: "Genes_TEs Biological QA"
 #' author: "Camilla Canovi"
 #' date: "`r Sys.Date()`"
 #' output:
@@ -121,7 +121,7 @@ dds <- DESeqDataSetFromMatrix(
   colData = csamples,
   design = ~Stages)
 
-save(dds,file=here("data/analysis/salmon/dds_genes+TEs.rda"))
+save(dds,file=here("data/analysis/salmon/dds_genes_TEs.rda"))
 
 #' Check the size factors (_i.e._ the sequencing library size effect)
 dds <- estimateSizeFactors(dds)
@@ -133,13 +133,13 @@ boxplot(sizes, main="Sequencing libraries size factor")
 vsd <- varianceStabilizingTransformation(dds, blind=TRUE)
 vst <- assay(vsd)
 vst <- vst - min(vst)
-save(vst,file=here("data/analysis/DE/vst-blind_genes+TEs.rda"))
+save(vst,file=here("data/analysis/DE/vst-blind_genes_TEs.rda"))
 
 #' ## Variance Stabilising Transformation
 vsda <- varianceStabilizingTransformation(dds, blind=FALSE)
 vsta <- assay(vsda)
 vsta <- vsta - min(vsta)
-save(vsta,file=here("data/analysis/DE/vst-aware_genes+TEs.rda"))
+save(vsta,file=here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 
 # prepare the data to build the network
 #ID <- rownames(vsta)
@@ -155,6 +155,8 @@ meanSdPlot(vsta[rowSums(vsta)>0,])
 
 #' ## QC on the normalised data
 #' ### PCA
+load(here("data/analysis/salmon/dds_genes_TEs.rda"))
+load(here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 pc <- prcomp(t(vsta))
 percent <- round(summary(pc)$importance[2,]*100)
 
@@ -183,13 +185,17 @@ pc.dat <- bind_cols(PC1=pc$x[,1],
                     PC2=pc$x[,2],
                     csamples)
 
-p <- ggplot(pc.dat,aes(x=PC1,y=PC2,col=dds$Stages,text=dds$ID)) + 
+p <- ggplot(pc.dat,aes(x=PC2,y=PC1,col=Stages,text=dds$ID)) + 
   geom_point(size=2) + 
-  ggtitle("Principal Component Analysis",subtitle="variance stabilized counts")
+  ggtitle("Principal Component Analysis")
+          #,subtitle="variance stabilized counts") 
+
+plot(p + labs(x=paste("PC2 (",percent[2],"%)",sep=""),
+              y=paste("PC1 (",percent[1],"%)",sep="")))
 
 ggplotly(p) %>% 
-  layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
-         yaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")))
+  layout(xaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")),
+         yaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")))
 
 #' ### Heatmap
 #' 
@@ -214,7 +220,7 @@ plot(as.hclust(hm$colDendrogram),xlab="",sub="",labels=conds)
 
 
 #' * Biological QA only on TEs
-#load(here("data/analysis/DE/vst-aware_genes+TEs.rda"))
+#load(here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 TEs <- vsta[grepl("^MA_", rownames(vsta)) == FALSE, ]
 
 #' # PCA of only TEs (subsetted data)
@@ -226,7 +232,7 @@ pc.dat_TEs <- bind_cols(PC1=pc_TEs$x[,1],
                     PC2=pc_TEs$x[,2],
                     csamples)
 
-p <- ggplot(pc.dat_TEs,aes(x=PC1,y=PC2,col=dds$Stages,text=dds$ID)) + 
+p <- ggplot(pc.dat_TEs,aes(x=PC1,y=PC2,col=Stages,text=dds$ID)) + 
   geom_point(size=2) + 
   ggtitle("Principal Component Analysis",subtitle="variance stabilized counts")
 

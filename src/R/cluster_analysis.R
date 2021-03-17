@@ -35,7 +35,7 @@ cl8_enr <- gopher(genes=cluster8$gene, alpha = 0.05, task=list("go", "mapman"), 
 
 #treemap
 
-plotEnrichedTreemap(x = cl7_enr, enrichment = "go", namespace = "none")
+plotEnrichedTreemap(x = cl8_enr, enrichment = "go", namespace = "CC")
 
 
 clusterTreemapColors <- rep(c("#9E1F63","#662D91","#2B3990","#1B75BC","#27AAE1",
@@ -44,82 +44,89 @@ clusterTreemapColors <- rep(c("#9E1F63","#662D91","#2B3990","#1B75BC","#27AAE1",
 clusterTreemapText <- rep(c("white","white","white","white","white",
                             "white","white","white","white","white",
                             "black","black","white","white","white"),15)
-
 plotEnrichedTreemap <- function(x, enrichment = c('go','mapman', 'kegg', 'pfam', 'ko_pathway', 'ko', 'kog','cog'), 
-                                namespace = c('BP','MF','CC', 'none'), title = "", de = "none", 
-                                clusterColor = "#9E1F63", clusterText='black') {
-  
+                                namespace = c('none', 'BP', 'MF', 'CC'), 
+                                title = "", 
+                                de = c("none", "up", "down"), 
+                                clusterColor = "#9E1F63", clusterText='black',
+                                nameCol="name",
+                                namespaceCol="namespace",
+                                sizeCol="padj",
+                                colorCol="padj", 
+                                convertSize=TRUE,legend=TRUE) {
   require(treemap)
   require(RColorBrewer)
-  require(KEGGREST)
-  
-  enrData <- x
-  
-  
   enrichment <- match.arg(enrichment)
   namespace <- match.arg(namespace)
-  
+  de <- match.arg(de)
+  enrData <- if (is.data.frame(x)){
+    x 
+  } else if (is.list(x)) {
+    x[[enrichment]]
+  } else {
+    stop("x object must be either a list or a data.frame")
+  }
+  # calculate the size based on padj
+  enrData$size <- if(convertSize) {
+    abs(log10(enrData[[colorCol]]))
+  } else {
+    enrData[[colorCol]]
+  }
   #default treemap
-  index = c('name')
-  palette = "OrRd"
+  index = nameCol
   fontcolor.labels=clusterText
   fontface.labels=c(2)
   fontsize.labels=c(12)
   inflate.labels = TRUE
   align.labels=list(c("center", "center"))
-  type = "categorical"
-  position.legend = "none"
-  vColor = 'name'
+  position.legend <- if (!legend) {"none"} else {"bottom"}
+  #vColor = 'name'
   border.col='black'
   border.lwds=c(7,2)
-  
+  palette <- colorRampPalette(c("white", clusterColor))
+  palette <- palette(10)
+  vColor = c("size")
+  if (sizeCol=="padj") {
+    vSize = vColor
+  } else {
+    vSize = sizeCol
+  }
+  type = "value"
+  title.legend="abs(log10(pAdj))"
+  bg.labels= 0
   if(enrichment =='go' ){
     if(namespace=='none') {
       index = c('namespace', 'name')
       palette = "Set1"
-      fontcolor.labels=c("#FF000000","black")
-      fontface.labels=c(1,2)
-      fontsize.labels=c(1,20)
-      inflate.labels = TRUE
-      align.labels=list(c("left", "top"), c("center", "center")
-      )
+      fontcolor.labels=c("#FF000000", "black")
+      fontface.labels=c(1, 2)
+      fontsize.labels=c(1, 20)
+      inflate.labels=TRUE
+      align.labels=list(c("left", "top"), c("center", "center") )
       type = "index"
-      position.legend = "bottom"
       border.col=c('black', 'white')
+      title.legend="GO namespace"
     } else {
-      x[[enrichment]] <- x[[enrichment]][x[[enrichment]]$namespace==namespace,]
-      #type = "value"
+      enrData <- enrData[enrData[[namespaceCol]]==namespace,]
     }
-    
-  } else if(enrichment =='mapman') {
-    x[[enrichment]]$name <- gsub("\\."," ",x[[enrichment]]$name)
+  }
+  # mapman name fix for better visualization
+  if(enrichment =='mapman') {
+    enrData[[nameCol]] <- gsub("\\."," ",enrData[[nameCol]])
   } 
-  
+  # Paint it properly if it is up or down regulated
   if(de !='none') {
-    position.legend = "none"
-    vColor = c("size")
-    type = "value"
     if(de=='up') {
       palette = "OrRd"
     }
     if(de=='down') {
       palette = "GnBu"
     }
-  } else if (enrichment != 'go') {
-    palette <- colorRampPalette(c("white", clusterColor))
-    palette <- palette(10)
-    vColor = c("size")
-    type = "value"
-  }
-  
-  
-  # calculate the size based on padj
-  x[[enrichment]]$size <- abs(log10(x[[enrichment]]$padj))
-  
+  } 
   # generate treemap
-  treemap(x[[enrichment]], 
+  treemap(enrData, 
           index = index,
-          vSize = ('size'), 
+          vSize = vSize, 
           palette = palette,
           type = type, 
           vColor = vColor,
@@ -127,19 +134,17 @@ plotEnrichedTreemap <- function(x, enrichment = c('go','mapman', 'kegg', 'pfam',
           fontcolor.labels=fontcolor.labels, 
           fontface.labels=fontface.labels,     
           #fontsize.labels=fontsize.labels,
-          bg.labels=c("transparent"), 
+          bg.labels=bg.labels, 
           inflate.labels = inflate.labels ,
           lowerbound.cex.labels = 0, 
           position.legend = position.legend,
           border.col=border.col,         
           border.lwds=border.lwds,
           align.labels=align.labels,
-          title.legend="legend",
-          overlap.labels = 1,
-          format.legend = list(scientific = FALSE, big.mark = " ")
+          title.legend=title.legend,
+          overlap.labels = 1
   )
 }
-
 #try to do Eigen plot
 
 library("devtools")

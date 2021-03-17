@@ -182,7 +182,8 @@ meanSdPlot(vsta[rowSums(vsta)>0,])
 
 #' ## QC on the normalised data
 #' ### PCA
-
+load("data/analysis/DE/vst-aware_linc.rda")
+load("data/analysis/salmon/dds_linc.rda")
 pc <- prcomp(t(vsta))
 percent <- round(summary(pc)$importance[2,]*100)
 
@@ -211,13 +212,17 @@ pc.dat <- bind_cols(PC1=pc$x[,1],
                     PC2=pc$x[,2],
                     csamples)
 
-p <- ggplot(pc.dat,aes(x=PC1,y=PC2,col=dds$Stages,text=dds$ID)) + 
+p <- ggplot(pc.dat,aes(x=PC2,y=PC1,col=Stages,text=dds$ID)) + 
   geom_point(size=2) + 
-  ggtitle("Principal Component Analysis",subtitle="variance stabilized counts")
+  ggtitle("Principal Component Analysis")
+          #,subtitle="variance stabilized counts"
+
+plot(p + labs(x=paste("PC2 (",percent[2],"%)",sep=""),
+              y=paste("PC1 (",percent[1],"%)",sep="")))
 
 ggplotly(p) %>% 
-  layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
-         yaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")))
+  layout(xaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")),
+         yaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")))
 
 #' ### Heatmap
 #' 
