@@ -10,7 +10,7 @@ module load bioinfo-tools blast
 mail="nicolas.delhomme@umu.se"
 in=$(realpath ../data/analysis/DE/linc_network.fasta)
 out=$(realpath ../data/blastn)
-inx=$(realpath ../PlantGenIE/blast_indices/aliases)/species_blastn_IS
+inx=$(realpath ../PlantGenIE/genomic_blast_indices/aliases)/plaza
 cpu=12
 
 ## create the out dir
