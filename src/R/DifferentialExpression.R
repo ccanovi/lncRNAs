@@ -220,7 +220,7 @@ stopifnot(all(goi %in% rownames(vsta)))
 dev.null <- lapply(goi,line_plot,dds=dds,vst=vsta)
 
 #' ## Differential Expression
-dds <- DESeq(dds)
+#dds <- DESeq(dds)
 
 #' * Dispersion estimation
 #' The dispersion estimation is adequate
@@ -230,7 +230,7 @@ plotDispEsts(dds)
 resultsNames(dds)
 
 res_2vs1 <- results(dds,c("Stages","S2","S1"), filter = rowMedians(counts(dds)))
-res_3 <- results(dds,c("Stages","S3","res_2vs1"), filter = rowMedians(counts(dds)))
+#res_3 <- results(dds,c("Stages","S3","res_2vs1"), filter = rowMedians(counts(dds)))
 res_3vs2 <- results(dds,c("Stages","S3","S2"), filter = rowMedians(counts(dds)))
 res_4vs3 <- results(dds,c("Stages","S4","S3"), filter = rowMedians(counts(dds)))
 res_5vs4 <- results(dds,c("Stages","S5","S4"), filter = rowMedians(counts(dds)))
@@ -238,6 +238,46 @@ res_6vs5 <- results(dds,c("Stages","S6","S5"), filter = rowMedians(counts(dds)))
 res_7vs6 <- results(dds,c("Stages","S7","S6"), filter = rowMedians(counts(dds)))
 res_8vs7 <- results(dds,c("Stages","S8","S7"), filter = rowMedians(counts(dds)))
 
+#' for the network
+
+blah <- rownames(res_2vs1)
+blahh <- as_tibble(res_2vs1)
+blahh <- add_column(blahh,blah)
+blahh <- blahh %>% select(log2FoldChange,padj,blah)
+colnames(blahh) <- c("log2FoldChange_2vs1","padj_2vs1","blah")
+blahh2 <- as_tibble(res_3vs2)
+blahh2 <- add_column(blahh2,blah)
+blahh2 <- blahh2 %>% select(log2FoldChange,padj,blah)
+colnames(blahh2) <- c("log2FoldChange_3vs2","padj_3vs2","blah")
+blahh3 <- as_tibble(res_4vs3)
+blahh3 <- add_column(blahh3,blah)
+blahh3 <- blahh3 %>% select(log2FoldChange,padj,blah)
+colnames(blahh3) <- c("log2FoldChange_4vs3","padj_4vs3","blah")
+blahh4 <- as_tibble(res_5vs4)
+blahh4 <- add_column(blahh4,blah)
+blahh4 <- blahh4 %>% select(log2FoldChange,padj,blah)
+colnames(blahh4) <- c("log2FoldChange_5vs4","padj_5vs4","blah")
+blahh5 <- as_tibble(res_6vs5)
+blahh5 <- add_column(blahh5,blah)
+blahh5 <- blahh5 %>% select(log2FoldChange,padj,blah)
+colnames(blahh5) <- c("log2FoldChange_6vs5","padj_6vs5","blah")
+blahh6 <- as_tibble(res_7vs6)
+blahh6 <- add_column(blahh6,blah)
+blahh6 <- blahh6 %>% select(log2FoldChange,padj,blah)
+colnames(blahh6) <- c("log2FoldChange_7vs6","padj_7vs6","blah")
+blahh7 <- as_tibble(res_8vs7)
+blahh7 <- add_column(blahh7,blah)
+blahh7 <- blahh7 %>% select(log2FoldChange,padj,blah)
+colnames(blahh7) <- c("log2FoldChange_8vs7","padj_8vs7","blah")
+tibble <- left_join(blahh, blahh2, by = NULL, copy=FALSE)
+tibble <- left_join(tibble, blahh3, by = NULL, copy=FALSE)
+tibble <- left_join(tibble, blahh4, by = NULL, copy=FALSE)
+tibble <- left_join(tibble, blahh5, by = NULL, copy=FALSE)
+tibble <- left_join(tibble, blahh6, by = NULL, copy=FALSE)
+tibble <- left_join(tibble, blahh7, by = NULL, copy=FALSE)
+tibble <- column_to_rownames(tibble, var ="blah")
+tibble_DE_linc <- tibble
+write.table(tibble_DE_linc,sep= "\t",col.names = NA, quote = FALSE, file=here("doc/tibble_DE_linc.tsv"))
 
 #'  # Number of DE genes in different stages of SE
 #'  Extract names of all significantly DE genes in the experiment
@@ -272,41 +312,41 @@ down <- lapply(res_sig_list, function(x){
     rownames(ab)
 })
 
-nr_DEgenes <- cbind(elementNROWS(up), elementNROWS(down))
-colnames(nr_DEgenes) <- c("up-regulated", "down-regulated")
-rownames(nr_DEgenes) <- c("1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8")
+nr_DElinc <- cbind(elementNROWS(up), elementNROWS(down))
+colnames(nr_DElinc) <- c("up-regulated", "down-regulated")
+rownames(nr_DElinc) <- c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8")
 
-barplot(t(nr_DEgenes),
+barplot(t(nr_DElinc),
         beside = TRUE,
         legend.text = TRUE,
-        xlab = "Stage",
-        ylab = "Number of DE genes",
-        ylim = c(0,19000),
+        xlab = "Stage comparison",
+        ylab = "Number of DE lincRNAs",
+        ylim = c(0,2000),
         col = pal12[c(2,3)],
         args.legend = list(bty = "n", x = "top")
 )
 
-barplot2(nr_DEgenes, 
+barplot2(nr_DElinc, 
          beside = TRUE, 
          legend.text = TRUE,
          xlab = "Stage",
          ylab = "Number of DE genes",
-         ylim = c(0,20000))
+         ylim = c(0,2000))
 
 #' with bigger font size
-barplot(t(nr_DEgenes), 
+barplot(t(nr_DElinc), 
         beside = TRUE, 
         col = pal12[c(2,3)], 
-        ylim = c(0, 12000),
+        ylim = c(0, 2000),
         cex.axis = 1.4, 
         cex.names = 1.4)
-mtext(side=1, line=3, "Stages", cex=1.6)
-mtext(side=2, line=2.5, "Number of DE genes", cex=1.6)
-mtext(side=3, line=2, "Number of up- and down-regulated genes", font=2, cex=1.8)
+mtext(side=1, line=3, "Stage comparison", cex=1.4)
+mtext(side=2, line=2.5, "Number of DE linc", cex=1.4)
+mtext(side=3, line=2, "Number of up- and down-regulated linc", font=2, cex=1.6)
 
 legend("top", bty = "n",
        fill = pal12[c(2,3)],
-       legend=c("up-regulated", "down-regulated"), cex = 1.4)
+       legend=c("up-regulated", "down-regulated"), cex = 1.2)
 
 
 

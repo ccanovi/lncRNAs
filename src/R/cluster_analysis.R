@@ -148,7 +148,7 @@ plotEnrichedTreemap <- function(x, enrichment = c('go','mapman', 'kegg', 'pfam',
 #try to do Eigen plot
 
 library("devtools")
-devtools::install_github("loalon/rBiobox")
+devtools::install_github("loalon/Rtoolbox")
 library(rBiobox)
 plotEigengene(toyData$expressionData, toyData$geneCluster, toyData$time, toyData$conditions)
 
@@ -179,7 +179,7 @@ miRNA_1 <-  cluster1[grep("miRNA",cluster1$gene),]
 miRNA_1 <- miRNA_1 %>% add_column(type = "miRNA")
 lincRNA_1 <-  cluster1[grep("TRINITY",cluster1$gene),]
 lincRNA_1 <- lincRNA_1 %>% add_column(type = "linc")
-colnames(miRNA_1)[1] <- "network$ID"
+colnames(gene_1)[1] <- "network$ID"
 bla <- gene_1 %>% add_row(lincRNA_1)
 Cluster1 <- bla %>% add_row(miRNA_1)
 
@@ -189,7 +189,7 @@ miRNA_2 <-  cluster2[grep("miRNA",cluster2$gene),]
 miRNA_2 <- miRNA_2 %>% add_column(type = "miRNA")
 lincRNA_2 <-  cluster2[grep("TRINITY",cluster2$gene),]
 lincRNA_2 <- lincRNA_2 %>% add_column(type = "linc")
-colnames(gene_2)[1] <- "network$ID"
+colnames(lincRNA_2)[1] <- "network$ID"
 bla2 <- gene_2 %>% add_row(lincRNA_2)
 Cluster2 <- bla2 %>% add_row(miRNA_2)
 
@@ -209,7 +209,7 @@ miRNA_4 <-  cluster4[grep("miRNA",cluster4$gene),]
 miRNA_4 <- miRNA_4 %>% add_column(type = "miRNA")
 lincRNA_4 <-  cluster4[grep("TRINITY",cluster4$gene),]
 lincRNA_4 <- lincRNA_4 %>% add_column(type = "linc")
-colnames(gene_4)[1] <- "network$ID"
+colnames(lincRNA_4)[1] <- "network$ID"
 bla4 <- gene_4 %>% add_row(lincRNA_4)
 Cluster4 <- bla4 %>% add_row(miRNA_4)
 
@@ -219,7 +219,7 @@ miRNA_5 <-  cluster5[grep("miRNA",cluster5$gene),]
 miRNA_5 <- miRNA_5 %>% add_column(type = "miRNA")
 lincRNA_5 <-  cluster5[grep("TRINITY",cluster5$gene),]
 lincRNA_5 <- lincRNA_5 %>% add_column(type = "linc")
-colnames(lincRNA_5)[1] <- "network$ID"
+colnames(gene_5)[1] <- "network$ID"
 bla5 <- gene_5 %>% add_row(lincRNA_5)
 Cluster5 <- bla5 %>% add_row(miRNA_5)
 
@@ -228,7 +228,7 @@ gene_6 <- gene_6 %>% add_column(type = "gene")
 miRNA_6 <-  cluster6[grep("miRNA",cluster6$gene),]
 lincRNA_6 <-  cluster6[grep("TRINITY",cluster6$gene),]
 lincRNA_6 <- lincRNA_6 %>% add_column(type = "linc")
-colnames(gene_6)[1] <- "network$ID"
+colnames(lincRNA_6)[1] <- "network$ID"
 Cluster6 <- gene_6 %>% add_row(lincRNA_6)
 
 
@@ -237,7 +237,7 @@ gene_7 <- gene_7 %>% add_column(type = "gene")
 miRNA_7 <-  cluster7[grep("miRNA",cluster7$gene),]
 lincRNA_7 <-  cluster7[grep("TRINITY",cluster7$gene),]
 lincRNA_7 <- lincRNA_7 %>% add_column(type = "linc")
-colnames(lincRNA_7)[1] <- "network$ID"
+colnames(gene_7)[1] <- "network$ID"
 Cluster7 <- gene_7 %>% add_row(lincRNA_7)
 
 gene_8 <-  cluster8[grep("MA",cluster8$gene),]
@@ -245,7 +245,7 @@ gene_8 <- gene_8 %>% add_column(type = "gene")
 miRNA_8 <-  cluster8[grep("miRNA",cluster8$gene),]
 lincRNA_8 <-  cluster8[grep("TRINITY",cluster8$gene),]
 lincRNA_8 <- lincRNA_8 %>% add_column(type = "linc")
-colnames(gene_8)[1] <- "network$ID"
+colnames(lincRNA_8)[1] <- "network$ID"
 Cluster8 <- gene_8 %>% add_row(lincRNA_8)
 
 bla_2 <- Cluster1 %>% add_row(Cluster2)
@@ -288,7 +288,7 @@ g <- ggplot(xar_b2) +
 g
 g + facet_wrap(~cluster)
 
-h <- ggplot(xar_1) +
-  geom_bar(aes(x=peak,fill=type)
+h <- ggplot(xar_3) +
+  geom_bar(aes(x=peak,fill=type))
 h
 h + facet_wrap(~type)

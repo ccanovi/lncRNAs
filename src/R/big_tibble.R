@@ -119,16 +119,16 @@ time_expression_nc_filtered <-  time_expression_nc %>% filter(score != "NA")
 write_delim(x = time_expression_nc_filtered, path = "doc/time_expression_nc_filtered.tsv", delim = " ")
 
 
-par(bg="orange")
+par(bg="green")
 plot(density(time_expression_nc_filtered$score), 
      xlab="stage_specificity",
      ylab="density",
-     main="NON_CODING",
+     main="lincRNAs",
      lwd=3,
      font.main=2,
      font.lab=2,
      cex.main=3,
-     cex.lab=2.5)
+     cex.lab=1.5)
 
 barplot(table(time_expression_nc_filtered$peak))
 barplot(table(time_expression_nc_filtered %>% filter(score > 0.9) %>% select(peak)))
@@ -143,18 +143,19 @@ time_expression_c_filtered <-  time_expression_c %>% filter(score != "NA")
 write_delim(x = time_expression_c_filtered, path = "doc/time_expression_c_filtered.tsv", delim = " ")
 
 
-par(bg="plum")
+par(bg="yellow")
 plot(density(time_expression_c_filtered$score), 
      xlab="stage_specificity",
      ylab="density",
-     main="CODING",
+     main="genes",
      lwd=3,
      font.main=2,
      font.lab=2,
      cex.main=3,
-     cex.lab=2.5)
+     cex.lab=1.5)
 barplot(table(time_expression_c_filtered$peak))
-barplot(table(time_expression_c_filtered %>% filter(score > 0.9) %>% select(peak)))
+barplot(table(time_expression_c_filtered %>% filter(score > 0.9) %>% select(peak)),
+        ylim=c(0,160))
 
 time_expression_c_filtered %<>% left_join(tibble(Transcript.ID=rownames(vsta),avgexp=rowMaxs(vsta)))
 plot(density(as.matrix(time_expression_c_filtered %>% filter(score > 0.9) %>% select(avgexp))))

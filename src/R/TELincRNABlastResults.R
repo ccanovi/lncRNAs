@@ -24,6 +24,9 @@ suppressPackageStartupMessages({
 res <- readBlast(here("data/blastn/linc_network.fasta_TE.blt"),
           format=BM8ext)
 
+#select TEs
+sel <- res$df$query.id
+
 #' # Session Info
 #' ```{r session info, echo=FALSE}
 #' sessionInfo()
