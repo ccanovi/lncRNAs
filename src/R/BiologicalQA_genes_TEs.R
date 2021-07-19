@@ -187,15 +187,15 @@ pc.dat <- bind_cols(PC1=pc$x[,1],
 
 p <- ggplot(pc.dat,aes(x=PC2,y=PC1,col=Stages,text=dds$ID)) + 
   geom_point(size=2) + 
-  ggtitle("Principal Component Analysis")
+  ggtitle("Principal Component Analysis genes")
           #,subtitle="variance stabilized counts") 
 
-plot(p + labs(x=paste("PC2 (",percent[2],"%)",sep=""),
-              y=paste("PC1 (",percent[1],"%)",sep="")))
+plot(p + labs(x=paste("PC1 (",percent[1],"%)",sep=""),
+              y=paste("PC2 (",percent[2],"%)",sep="")))
 
 ggplotly(p) %>% 
-  layout(xaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")),
-         yaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")))
+  layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
+         yaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")))
 
 #' ### Heatmap
 #' 
