@@ -28,4 +28,12 @@ writeXStringSet(seq[IDs],file="~/Git/lncRNAs/data/analysis/DE/myguy3.fasta")
 IDs <- "TRINITY_DN58094_c0_g2_i1"
 
 
+mRNA <- readDNAStringSet("~/Git/lncRNAs/data/analysis/DE/genes_backbone2.fasta")
+colSums(alphabetFrequency(mRNA))
+sel <- alphabetFrequency(mRNA)[,"N"] != 0
+mRNA[sel] <- DNAStringSet(gsub("N","A",mRNA[sel]))
+writeXStringSet(mRNA,"~/Git/lncRNAs/data/analysis/DE/genes_backbone2_N_changed_to_A.fasta")
+colSums(alphabetFrequency(mRNA))
+
+
   

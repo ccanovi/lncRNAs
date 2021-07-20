@@ -3,7 +3,7 @@
 email=camilla.canovi@umu.se
 lncRNA=~/Git/lncRNAs/data/analysis/DE/lincRNAs_backbone2.fasta
 out=~/Git/lncRNAs/data/lnctar
-mRNA=~/Git/lncRNAs/data/analysis/DE/genes_backbone2.fasta
+mRNA=~/Git/lncRNAs/data/analysis/DE/genes_backbone2_N_changed_to_A.fasta
 proj=u2015037
 
 ## create the out dir
