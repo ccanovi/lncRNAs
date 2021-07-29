@@ -10,6 +10,7 @@
 #' # Setup
 #' Libraries
 suppressPackageStartupMessages({
+  library(Biostrings)
   library(here)
   library(magrittr)
   library(parallel)
@@ -215,6 +216,75 @@ par(mar=mar)
 
 #' Extend the metadata 
 metadata %<>% left_join(tax_map,by="reference_ID")
+
+#' ## Sequences
+ref <- readDNAStringSet(here("data/trinity/Trinity.fasta"))
+metadata %<>% left_join(tibble(TRINITY_ID=sub(" .*","",names(ref)),
+                               GC=rowSums(alphabetFrequency(ref)[,c("C","G")]) / width(ref),
+                               length=width(ref)),by="TRINITY_ID")
+
+#' ## CNCI
+metadata %<>% left_join(read_tsv(file = here("data/CNCI/CNCI.index"),
+                                 col_names = c("TRINITY_ID", "CNCI_index", "CNCI_score", "CNCI_start", "CNCI_end", "CNCI_length"),
+                                 col_types=cols(.default=col_character())) %>%
+                          mutate(TRINITY_ID=gsub(">| .*","",TRINITY_ID)),by="TRINITY_ID")
+
+#' ## PLEK
+metadata %<>% left_join(read_tsv(file=here("data/PLEK/Trinity.txt"),
+                                 col_names = c("PLEK_type","PLEK_score","TRINITY_ID"),
+                                 col_types = c("cdc")) %>% 
+                          mutate(TRINITY_ID=gsub(">| .*","",TRINITY_ID)),by="TRINITY_ID")
+
+#' ## CPC2
+metadata %<>% left_join(read_tsv(file = here("data/CPC2/results.txt"),
+                                 comment="#",
+                                 col_names = c("TRINITY_ID",
+                                               "CPC2_transcript_length",
+                                               "CPC2_peptide_length",
+                                               "CPC2_Fickett_score",
+                                               "CPC2_pI",
+                                               "CPC2_ORF_integrity",
+                                               "CPC2_coding_probability" ,
+                                               "CPC2_label"),
+                                 col_types=c("cddddddc")),by="TRINITY_ID")
+
+#' ## PLncPRO
+metadata %<>% left_join(read_table2(file = here("data/PLncPRO/Trinity.txt"),
+                                    col_names = c("TRINITY_ID","PLncPRO_coding_potential","X3","X4"),
+                                    col_types = cols_only("TRINITY_ID"=col_character(),
+                                                          "PLncPRO_coding_potential"=col_number())),by="TRINITY_ID")
+
+#' ## Transdecoder
+metadata %<>% left_join(read_table2(here("data/Transdecoder/Trinity.fasta.transdecoder.IDs.txt"),
+                                    col_names = c("X1","X2","X3",
+                                                  "Transdecoder_type","Transdecoder_AA_length","Transdecoder_score","Coord"),
+                                    col_types = cols_only("Transdecoder_type"=col_character(),
+                                                          "Transdecoder_AA_length"=col_number(),
+                                                          "Transdecoder_score"=col_character(),
+                                                          "Coord"=col_character())) %>% 
+                          separate(Coord,into=c("TRINITY_ID","Transdecoder_start","Transdecoder_end"),extra="drop",sep=":|=|-|\\(") %>% 
+                          mutate(Transdecoder_type=factor(sub("type:","",Transdecoder_type)),
+                                 Transdecoder_strand=gsub("\\(|\\).*","",Transdecoder_score),
+                                 Transdecoder_score=parse_double(sub(".*=","",Transdecoder_score))),by="TRINITY_ID")
+
+#' # Flagging
+#' * Coding
+metadata %<>% mutate(coding=length >= 200 & 
+                       CNCI_index == "coding" & 
+                       PLEK_type == "Coding" & 
+                       CPC2_label == "coding" & 
+                       PLncPRO_coding_potential == 1 & 
+                       !is.na(Transdecoder_type))
+
+#' * Non-coding
+metadata %<>% mutate(non_coding=length >= 200 & 
+                       CNCI_index == "noncoding" & 
+                       PLEK_type == "Non-coding" & 
+                       CPC2_label == "noncoding" & 
+                       PLncPRO_coding_potential == 0)
+
+#' * Network
+metadata %<>% mutate(seidr=TRINITY_ID %in% scan(here("data/seidr/genes.tsv"),sep="\t",what="character"))
 
 #' # Export
 write_tsv(metadata,file=here("data/metadata.tsv"))
