@@ -20,6 +20,7 @@ suppressPackageStartupMessages({
   
 #' Helper functions
 source(here("UPSCb-common/src/R/expressionSpecificityUtility.R"))
+source(here("UPSCb-common/src/R/blastUtilities.R"))
 
 #' # Data
 #' ## Salmon
@@ -47,6 +48,8 @@ time_expression <- expressionSpecificity(
   tissues = as.character(samples_m$Stages[match(colnames(vsta),samples_m$SampleID)]),
   output = "complete")
 
+vsta <- sapply(split.data.frame(t(as.data.frame(vsta)),colnames(vsta)),colSums)
+
 #' Visualisation
 #' 
 #' * expression is either very stage specific (peak at 1) or spreading between 0 and 0.6 (rather ubiquitous) 
@@ -72,7 +75,10 @@ mad <- rowMads(as.matrix(time_expression[,grep("aij",colnames(time_expression),v
 boxplot(list(mean=means,sd=sd,median=median,mad=mad))
 
 #' Start a tibble to store the metadata
-metadata <- left_join(as.data.frame(counts) %>% rownames_to_column("TRINITY_ID"),
+colnames(counts) <- paste0("raw_",colnames(counts))
+colnames(vsta) <- paste0("vst_",colnames(vsta))
+metadata <- left_join(left_join(as.data.frame(counts) %>% rownames_to_column("TRINITY_ID"),
+                                as.data.frame(vsta) %>% rownames_to_column("TRINITY_ID"),by="TRINITY_ID"),
                       as.data.frame(time_expression) %>% rownames_to_column("TRINITY_ID"),
                       by="TRINITY_ID") %>% as_tibble()
 
@@ -99,6 +105,22 @@ metadata %<>% left_join(reduce(mclapply(list.files(here("data/GMAP"),
                       mutate(gmap_type=sub("_gene","",basename(f)))
                   },mc.cores=3L),bind_rows),by="TRINITY_ID")
 
+#' Process the original files to extract the number of exons per alignments
+metadata %<>% left_join(
+  reduce(mclapply(list.files(here("data/GMAP"),
+                             pattern="Pabies1\\.0-Trinity\\.2\\..*\\.gz",
+                             recursive=FALSE,
+                             full.names=TRUE),
+                  function(f){read_tsv(f,
+                                       col_names = c("X1","X2","Type",
+                                                     "X4","X5","X6","X7","X8","TRINITY_ID"),
+                                       col_types = cols_only("Type" = col_factor(),
+                                                             "TRINITY_ID" = col_character()),comment="#") %>% 
+                      filter(Type=="exon") %>% 
+                      separate(TRINITY_ID,into=paste0("V",1:11),sep=";|=| ") %>% 
+                      select(V6,TRINITY_ID=V8) %>% group_by(V6) %>% add_count(name="Exon") %>% 
+                      group_by(TRINITY_ID) %>% select(TRINITY_ID,Exon) %>% summarise_all(paste,collapse="|") 
+                  },mc.cores=3L),bind_rows),by="TRINITY_ID")
 
 #' ## BedToolsIntersect
 metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsIntersect2/GMAP_all-Eugene-gene-only.tsv"),
@@ -267,6 +289,40 @@ metadata %<>% left_join(read_table2(here("data/Transdecoder/Trinity.fasta.transd
                                  Transdecoder_strand=gsub("\\(|\\).*","",Transdecoder_score),
                                  Transdecoder_score=parse_double(sub(".*=","",Transdecoder_score))),by="TRINITY_ID")
 
+#" ## Cd-hist-est
+metadata %<>% left_join(read_tsv(here("data/analysis/cdhit/cd-hit-est_id80_cluster-membership.tsv"),
+                                 show_col_types = FALSE) %>% rename(cdhit_cluster=cluster),by=c("TRINITY_ID"="ID"))
+
+#' ## PLAZA
+#' We may have to re-run the Blast at some point as not all IDs are well formatted
+metadata %<>% left_join(readBlast(here("data/blastn/plaza_linc_network.blt"),
+                                  plot=FALSE,verbose=FALSE,
+                 format=BM8ext)$df %>% separate(col=subject.id,
+                                 into=c("Plaza_caffold","Plaza_species"),
+                                 sep="\\|",fill="right",extra="drop") %>% 
+                   rename_with(.fn=function(x){paste0("Plaza_",x)}) %>% 
+  dplyr::rename(TRINITY_ID=Plaza_query.id) %>% group_by(TRINITY_ID) %>%
+  summarise_all(paste,collapse="|"),by="TRINITY_ID")
+
+#' ## miRNA
+metadata %<>% left_join(readBlast(here("data/blastn/linc_network.fasta_Pabies_SE_miRNA.precursor.blt"),
+          format=BM8ext,verbose=FALSE,plot=FALSE)$df %>% 
+  rename_with(.fn=function(x){paste0("miRNA_",x)}) %>% 
+  dplyr::rename(TRINITY_ID=miRNA_subject.id) %>% group_by(TRINITY_ID) %>%
+  summarise_all(paste,collapse="|") ,by="TRINITY_ID")
+
+#' ## TE
+metadata %<>% left_join(readBlast(here("data/blastn/linc_network.fasta_TE.blt"),
+                                  verbose=FALSE,format=BM8ext,plot=FALSE)$df %>% 
+  rename_with(.fn=function(x){paste0("TE_",x)}) %>% 
+  dplyr::rename(TRINITY_ID=TE_subject.id) %>% group_by(TRINITY_ID) %>%
+  summarise_all(paste,collapse="|"),by="TRINITY_ID")
+
+#' ## Infomap
+metadata %<>% left_join(read_tsv(here("data/seidr/backbone/infomapClusters.tsv"),
+                                 show_col_types = FALSE) %>% 
+  dplyr::rename(TRINITY_ID=gene,Infomap_cluster=cluster),by="TRINITY_ID")
+
 #' # Flagging
 #' * Coding
 metadata %<>% mutate(coding=length >= 200 & 
@@ -288,6 +344,7 @@ metadata %<>% mutate(seidr=TRINITY_ID %in% scan(here("data/seidr/genes.tsv"),sep
 
 #' # Export
 write_tsv(metadata,file=here("data/metadata.tsv"))
+saveRDS(metadata,file=here("data/metadata.rds"))
 
 #' # Session Info
 #' ```{r session info, echo=FALSE}

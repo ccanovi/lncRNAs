@@ -37,7 +37,7 @@ sum(sel)
 res$df$Species <- "Pinus_taeda"
 sel2 <- grepl("\\|",res$df$subject.id)
 res$df$Species[sel2] <- sub(".*\\|","",res$df$subject.id[sel2])
-res$df[res$df$Species=="","Species"] <- "Pinus_taeda"
+res$df[res$df$Species=="" & !is.na(res$df$Species),"Species"] <- "Pinus_taeda"
 
 #' How many species and what's their average coverage
 res$df$Species <- "Pinus_taeda"
