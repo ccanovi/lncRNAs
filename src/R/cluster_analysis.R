@@ -167,7 +167,8 @@ plotEigengene(dat, miRNA5, samples$Stages, rep("bla", nrow(dat)))
 lincRNA8 <- cluster8$gene[grep("TRINITY",cluster8$gene)]
 plotEigengene(dat, lincRNA8, samples$Stages, rep("bla", nrow(dat)))
 
-
+plotEigengene(dat, cluster8$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster8",colors = c("#FF9933"))
+                
 
 
 #doing bar_plots

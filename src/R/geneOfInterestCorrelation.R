@@ -4,11 +4,11 @@ library(here)
 library(readr)
 
 # data
-dat <- read_tsv(here("doc/network_matrix.tsv")) %>% 
+dat <- read_tsv(here("doc/network_matrix.tsv"),show_col_types = FALSE) %>% 
   tibble::column_to_rownames("ID") %>% as.data.frame()
 
 # sample
-smpl <- read_csv(here("doc/samples_final.csv")) %>% 
+smpl <- read_csv(here("doc/samples_final.csv"),show_col_types = FALSE) %>% 
   filter(!duplicated(ID)) %>% select(ID,Stages)
 
 # sanity
@@ -19,8 +19,10 @@ mat <- sapply(split.data.frame(t(dat),smpl$Stages),matrixStats::colMedians)
 rownames(mat) <- rownames(dat)
 
 # goi
-goi <- c("miRNA_12146-5p", "TRINITY_DN10084_c0_g5_i1", "TRINITY_DN64598_c0_g1_i3",
-"MA_49382g0010")
+goi <- c("miRNA_8938-3p","TRINITY_DN44006_c0_g1_i1", "MA_8886174g0010",
+"MA_10430713g0010","MA_709163g0010")#,"TRINITY_DN37193_c0_g1_i1","TRINITY_DN4541_c1_g1_i1",
+#"MA_10437010g0020","MA_1537g0010","MA_81888g0010","MA_10433607g0010",
+#"MA_17048g0010","MA_42702g0010")#,"MA_168804g0010","MA_10427413g0010","MA_8075895g0010")
 
 # permutations
 res <- t(apply(combn(1:length(goi),2),2,function(inx){
