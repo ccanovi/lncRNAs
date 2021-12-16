@@ -37,11 +37,43 @@ stats.res <- statsDF[!duplicated(statsDF),]
 stats.res$gene <- as.factor(stats.res$gene)
 stats.res$PageRank <- as.factor(stats.res$PageRank)
 
-p <-  ggplot(test, aes(x=type,y=Eigenvector)) +
-  geom_violin() 
+p <-  ggplot(test_last, aes(x=type,y=PageRank)) +
+  geom_violin() +
+  scale_y_log10() +
+  theme_classic() +
+  theme(text=element_text(size=13))
 p
 
+b <-  ggplot(test_last, aes(x=type,y=Betweenness)) +
+  geom_violin() +
+  scale_y_log10() +
+  theme_classic() +
+  theme(text=element_text(size=13))
+b
 
+
+s <-  ggplot(test_last, aes(x=type,y=Strength)) +
+  geom_violin() +
+  scale_y_log10() +
+  theme_classic()
+s
+
+k <-  ggplot(test_last, aes(x=type,y=Katz)) +
+  geom_violin() +
+  scale_y_log10() +
+  theme_classic() +
+  theme(text=element_text(size=13))
+k
+
+e <-  ggplot(test_last, aes(x=type,y=Eigenvector)) +
+  geom_violin() +
+  theme_classic()
+e
+
+library(cowplot)
+all <- plot_grid(p,b,k,labels=c("A","B","C"),vjust = 1.3,ncol=3)#hjust=-20,)
+plot(all)
+ggsave(filename=here("data/analysis/figures_new//Network_characteristics_by_col.png"),device ="png",dpi = 600)
 linc_ord <- lincRNAs[order(lincRNAs$PageRank,decreasing = TRUE), ]
 newGOA_ord <- as_tibble(newGOA_ord)
 linc2col <- linc_ord[,1:2]
@@ -51,8 +83,8 @@ linc_10 <- linc2col[1:10,]
 bla <- as_tibble(stats.res)
 bla2 <- column_to_rownames(bla, var = "gene")
 
-lincRNAs <- bla %>% filter(grepl("TRINITY",gene)) %>% 
-  mutate(gene,gene=gsub("TRINITY_DN[0-9]+_c[0-9]+_g[0-9]+_i[0-9]+","linc",lincRNAs$gene))
+lincRNAs <- bla %>% filter(grepl("TRINITY",gene)) #%>% 
+  #mutate(gene,gene=gsub("TRINITY_DN[0-9]+_c[0-9]+_g[0-9]+_i[0-9]+","linc",lincRNAs$gene))
 
 lincRNAs2 <- column_to_rownames(lincRNAs, var = "gene")
 lalala <- lincRNAs2[order(decreasing = TRUE,lincRNAs2$PageRank), ]
@@ -60,14 +92,16 @@ lalala <- lincRNAs2[order(decreasing = TRUE,lincRNAs2$PageRank), ]
 #sort(lincRNAs2$PageRank)
 genes <- bla %>% filter(grepl("MA_",gene)) #%>% 
   #mutate(gene,gene=gsub("MA_[0-9]+g[0-9]+","gene",genes$gene))
-miRNAs <- bla %>% filter(grepl("miRNA",gene)) %>% 
-  mutate(gene,gene=gsub("miRNA_[0-9]+-[0-9]p","miRNA",miRNAs$gene))
+miRNAs <- bla %>% filter(grepl("miRNA",gene)) #%>% 
+  #mutate(gene,gene=gsub("miRNA_[0-9]+-[0-9]p","miRNA",miRNAs$gene))
 
 
 
-lincRNAs <- lincRNAs %>% add_column(type = "linc")
-miRNAs <- miRNAs %>% add_column(type = "miRNA")
-test <- rbind(test,miRNAs)
+lincRNAs <- lincRNAs %>% add_column(type = "lincRNAs")
+miRNAs <- miRNAs %>% add_column(type = "miRNAs")
+test <- rbind(lincRNAs,miRNAs)
+test2 <- rbind(test,TFs)
+test_last <-  rbind(test2,genes)
 
 TF <- read.csv(file = "doc/TF_list.txt",sep = "")
 TF_list <- TF$TF_ID
@@ -80,7 +114,11 @@ TF_last <- oveer$a2
 TF_last <- as_tibble(TF_last)
 TF_last <- TF_last %>% add_column(type = "TF")
 TF_last <- rename(TF_last,gene=value)
-TF_and_genes <- left_join(genes,TF_last,by = NULL, copy=FALSE)
+TFs <- semi_join(genes,TF_last,by = NULL, copy=FALSE)
+TFs <- TFs %>% add_column(type = "TFs")
+genes <- anti_join(genes,TF_last,by = NULL, copy=FALSE)
+genes <- genes %>% add_column(type = "genes")
+
 
 common <- plot.new()
 grid.draw(venn.diagram(list(
@@ -249,9 +287,9 @@ plotEigengene(dat, "MA_16299g0010",rep("bla", nrow(dat)),samples$Stages, title =
 
 
 # enrichment
-bla_FDG_enr <- gopher(genes=bla_FDG, alpha = 0.05, task=list("go", "mapman","kegg","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+bla_FDG_enr3 <- gopher(genes=bla_FDG3, alpha = 0.05, task=list("go", "mapman","kegg","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
 bla_FDG_enr_2nd <- gopher(genes=SDN_genes12, alpha = 0.05, task=list("go", "mapman","kegg","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-plotEnrichedTreemap(x = bla_FDG_enr, enrichment = "go",namespace = "BP")
+plotEnrichedTreemap(x = bla_FDG_enr9, enrichment = "mapman") #,namespace = "BP")
 
 
 load(here("data/analysis/seidr/network.rda"))
@@ -503,7 +541,28 @@ legend("right", bty = "n",
        fill = c(pal12[6],pal_grey[9]),
        legend=c("genes", "lincRNAs"), cex = 1.2)
 
+abline(v=quantile(-log2(NewGOA_linc$PredictionScore)),probs=)
 
+NewGOA_genes <- NewGOA_genes %>% add_column(type = "genes")
+NewGOA_linc <- NewGOA_linc %>% add_column(type = "lincRNAs")
+newGOA_total <- rbind(NewGOA_genes,NewGOA_linc)
+
+library(ggplot2)
+library(ggridges)
+ggplot(data,aes(x=value, fill=variable)) + geom_density(alpha=0.25)
+micio <- ggplot(newGOA_total,aes(x=-log2(PredictionScore),colour=type)) +
+  geom_density(size=1.5) +
+  labs(colour = NULL) +
+  labs(title = "NewGOA selection") +
+  theme(text=element_text(size=15)) +
+  theme(plot.title = element_text(face = "bold",size=20)) +
+  theme_classic() 
+  #geom_vline(xintercept=-log2(newGOA_total$PredictionScore),seq(0,.1,by=0.03))
+plot(micio)
+ggsave(filename=here("data/analysis/figures_new//NewGOA_selection.png"),device ="png",dpi = 600)
+dev.off()
+
+micio + geom_vline(xintercept=-log2(newGOA_total$PredictionScore),seq(0,.1,by=0.03),colour=newGOA_total$type)
 
 plot(rank(log2(NewGOA_linc$PredictionScore)), 
      rank(log2(NewGOA_genes$PredictionScore)), 
