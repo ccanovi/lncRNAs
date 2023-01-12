@@ -24,18 +24,18 @@ cluster8 <- subset(InfomapClusters, cluster == "Cluster8")
 cluster9 <- subset(InfomapClusters, cluster == "Cluster9")
 #Gopher
 
-cl1_enr <- gopher(genes=cluster1$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-cl2_enr <- gopher(genes=cluster2$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-cl3_enr <- gopher(genes=cluster3$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-cl4_enr <- gopher(genes=cluster4$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-cl5_enr <- gopher(genes=cluster5$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-cl6_enr <- gopher(genes=cluster6$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-cl7_enr <- gopher(genes=cluster7$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
-cl8_enr <- gopher(genes=cluster8$gene, alpha = 0.05, task=list("go", "mapman"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl1_enr <- gopher(genes=cluster1$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl2_enr <- gopher(genes=cluster2$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl3_enr <- gopher(genes=cluster3$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl4_enr <- gopher(genes=cluster4$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl5_enr <- gopher(genes=cluster5$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl6_enr <- gopher(genes=cluster6$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl7_enr <- gopher(genes=cluster7$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+cl8_enr <- gopher(genes=cluster8$gene, alpha = 0.05, task=list("go", "mapman","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
 
 #treemap
 
-plotEnrichedTreemap(x = cl8_enr, enrichment = "go", namespace = "CC")
+plotEnrichedTreemap(x = cl1_enr, enrichment = "go") #, namespace = "CC")
 
 
 clusterTreemapColors <- rep(c("#9E1F63","#662D91","#2B3990","#1B75BC","#27AAE1",
@@ -167,8 +167,23 @@ plotEigengene(dat, miRNA5, samples$Stages, rep("bla", nrow(dat)))
 lincRNA8 <- cluster8$gene[grep("TRINITY",cluster8$gene)]
 plotEigengene(dat, lincRNA8, samples$Stages, rep("bla", nrow(dat)))
 
-plotEigengene(dat, cluster8$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster8",colors = c("#FF9933"))
-                
+plotEigengene(dat, cluster1$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster1",colors = c("#1B9E77"))
+ggsave(filename=here("data/analysis/figures_new//cluster1.png"),device ="png",dpi = 600)
+plotEigengene(dat, cluster2$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster2",colors = c("#D95F02"))
+ggsave(filename=here("data/analysis/figures_new//cluster2.png"),device ="png",dpi = 600)
+plotEigengene(dat, cluster3$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster3",colors = c("#A6761D"))
+ggsave(filename=here("data/analysis/figures_new//cluster3.png"),device ="png",dpi = 600)
+plotEigengene(dat, cluster4$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster4",colors = c("#E7298A"))
+ggsave(filename=here("data/analysis/figures_new//cluster4.png"),device ="png",dpi = 600)
+plotEigengene(dat, cluster5$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster5",colors = c("#66A61E"))
+ggsave(filename=here("data/analysis/figures_new//cluster5.png"),device ="png",dpi = 600)
+plotEigengene(dat, cluster6$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster6",colors = c("#E6AB02"))
+ggsave(filename=here("data/analysis/figures_new//cluster6.png"),device ="png",dpi = 600)
+plotEigengene(dat, cluster7$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster7",colors = c("#7570B3"))
+ggsave(filename=here("data/analysis/figures_new//cluster7.png"),device ="png",dpi = 600)
+plotEigengene(dat, cluster8$gene, rep("bla", nrow(dat)),samples$Stages,title = "Cluster8",colors = c("#666666"))
+ggsave(filename=here("data/analysis/figures_new//cluster8.png"),device ="png",dpi = 600)
+
 
 
 #doing bar_plots

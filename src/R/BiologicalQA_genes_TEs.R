@@ -81,7 +81,7 @@ sprintf("%s%% percent (%s) of %s genes are not expressed",
 dat <- tibble(x=colnames(counts),y=colSums(counts)) %>% 
   bind_cols(csamples)
 
-ggplot(dat,aes(x,y,fill=csamples$Stages)) + geom_col() + 
+ggplot(dat,aes(x,y,fill=samples$Stages)) + geom_col() + 
   scale_y_continuous(name="reads") +
   theme(axis.text.x=element_text(angle=90,size=4),axis.title.x=element_blank())
 
@@ -106,7 +106,7 @@ ggplot(dat,aes(x=values,group=ind,col=Stages)) +
 
 #' ## Export
 dir.create(here("data/analysis/salmon"),showWarnings=FALSE,recursive=TRUE)
-write.csv(counts,file=here("data/analysis/salmon/raw-unormalised-gene-expression_data_genes+TEs.csv"))
+write.csv(counts,file=here("data/analysis/salmon/raw-unormalised-gene-expression_data_genes_TEs.csv"))
 
 #' # Data normalisation 
 #' ## Preparation
@@ -185,12 +185,19 @@ pc.dat <- bind_cols(PC1=pc$x[,1],
                     PC2=pc$x[,2],
                     csamples)
 
-p <- ggplot(pc.dat,aes(x=PC2,y=PC1,col=Stages,text=dds$ID)) + 
-  geom_point(size=2) + 
-  ggtitle("Principal Component Analysis genes")
+m <- ggplot(pc.dat,aes(x=PC2,y=PC1,col=Stages,text=dds$ID)) + 
+  geom_point(size=2) +
+  theme_classic() +
+  ggtitle("Principal Component Analysis coding") +
           #,subtitle="variance stabilized counts") 
+  labs(x=paste("PC1 (",percent[1],"%)",sep=""),
+       y=paste("PC2 (",percent[2],"%)",sep="")) +
+  theme(text=element_text(size=12)) +
+  #theme(plot.title=element_text(size=20)) +
+  theme(plot.title = element_text(face = "bold"))
+m
 
-plot(p + labs(x=paste("PC1 (",percent[1],"%)",sep=""),
+plot(m + labs(x=paste("PC1 (",percent[1],"%)",sep=""),
               y=paste("PC2 (",percent[2],"%)",sep="")))
 
 ggplotly(p) %>% 

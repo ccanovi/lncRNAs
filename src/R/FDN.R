@@ -32,25 +32,43 @@ statsDF <- rbind(statsDF1, statsDF2)
 
 # Remove duplicated rows
 stats.res <- statsDF[!duplicated(statsDF),]
+tibble <- read_tsv(here("data/metadata.tsv.gz"))
+removing <- false_linc_network$TRINITY_ID
+save(removing,file=here("doc/extra_filtering.rda"))
+stats.res_new <- stats.res[! stats.res$gene %in% removing,]
 
 #trying to do a violin plot based on PageRank
 stats.res$gene <- as.factor(stats.res$gene)
 stats.res$PageRank <- as.factor(stats.res$PageRank)
+geneColors <- rep("#000000", length(unique(test_last$type)))
+names(geneColors) <- unique(test_last$type)
+geneColors[coding] <-  color="#60B266"
+geneColors[lincRNAs] <- "#FEF65B"
+geneColors[miRNAs] <-  "#009AA9"
 
-p <-  ggplot(test_last, aes(x=type,y=PageRank)) +
-  geom_violin() +
+#Then in ggplot
+scale_color_manual(values=geneColors) 
+p <-  ggplot(test_last, aes(x=type,y=PageRank,colour=type)) +  
+  geom_violin(size=1.5) +
   scale_y_log10() +
   theme_classic() +
-  theme(text=element_text(size=13))
+  theme(text=element_text(size=13)) +
+  theme(legend.position = "None") +
+  scale_color_manual(values=c("coding" = "#F8766D","lincRNAs" ="#619CFF","miRNAs" ="#F0E442","TFs" ="#999999"))
 p
 
-b <-  ggplot(test_last, aes(x=type,y=Betweenness)) +
-  geom_violin() +
+#p2 +scale_fill_manual(values=c("coding" = "#F8766D","lincRNAs" ="#619CFF","miRNAs" ="#F0E442","TFs" ="#999999"))
+p + scale_color_manual(values=c("coding" = "#F8766D","lincRNAs" ="#619CFF","miRNAs" ="#F0E442","TFs" ="#999999"))
+
+
+b <-  ggplot(test_last, aes(x=type,y=Betweenness,colour=type)) +
+  geom_violin(size=1.5) +
   scale_y_log10() +
   theme_classic() +
-  theme(text=element_text(size=13))
+  theme(text=element_text(size=13)) +
+  theme(legend.position = "None") +
+  scale_color_manual(values=c("coding" = "#F8766D","lincRNAs" ="#619CFF","miRNAs" ="#F0E442","TFs" ="#999999"))
 b
-
 
 s <-  ggplot(test_last, aes(x=type,y=Strength)) +
   geom_violin() +
@@ -58,11 +76,13 @@ s <-  ggplot(test_last, aes(x=type,y=Strength)) +
   theme_classic()
 s
 
-k <-  ggplot(test_last, aes(x=type,y=Katz)) +
-  geom_violin() +
+k <-  ggplot(test_last, aes(x=type,y=Katz,colour=type)) +
+  geom_violin(size=1.5) +
   scale_y_log10() +
   theme_classic() +
-  theme(text=element_text(size=13))
+  theme(text=element_text(size=13)) +
+  theme(legend.position = "None") +
+  scale_color_manual(values=c("coding" = "#F8766D","lincRNAs" ="#619CFF","miRNAs" ="#F0E442","TFs" ="#999999"))
 k
 
 e <-  ggplot(test_last, aes(x=type,y=Eigenvector)) +
@@ -73,24 +93,24 @@ e
 library(cowplot)
 all <- plot_grid(p,b,k,labels=c("A","B","C"),vjust = 1.3,ncol=3)#hjust=-20,)
 plot(all)
-ggsave(filename=here("data/analysis/figures_new//Network_characteristics_by_col.png"),device ="png",dpi = 600)
+ggsave(filename=here("data/analysis/figures_new//Network_characteristics_by_col_col.png"),device ="png",dpi = 600)
 linc_ord <- lincRNAs[order(lincRNAs$PageRank,decreasing = TRUE), ]
 newGOA_ord <- as_tibble(newGOA_ord)
 linc2col <- linc_ord[,1:2]
 linc_10 <- linc2col[1:10,]
 
 # Using tidyverse and dividing by RNA classes
-bla <- as_tibble(stats.res)
+bla <- as_tibble(stats.res_new)
 bla2 <- column_to_rownames(bla, var = "gene")
 
-lincRNAs <- bla %>% filter(grepl("TRINITY",gene)) #%>% 
+lincRNAs2 <- bla2 %>% filter(grepl("TRINITY",gene)) #%>% 
   #mutate(gene,gene=gsub("TRINITY_DN[0-9]+_c[0-9]+_g[0-9]+_i[0-9]+","linc",lincRNAs$gene))
 
 lincRNAs2 <- column_to_rownames(lincRNAs, var = "gene")
 lalala <- lincRNAs2[order(decreasing = TRUE,lincRNAs2$PageRank), ]
 
 #sort(lincRNAs2$PageRank)
-genes <- bla %>% filter(grepl("MA_",gene)) #%>% 
+coding <- bla %>% filter(grepl("MA_",gene)) #%>% 
   #mutate(gene,gene=gsub("MA_[0-9]+g[0-9]+","gene",genes$gene))
 miRNAs <- bla %>% filter(grepl("miRNA",gene)) #%>% 
   #mutate(gene,gene=gsub("miRNA_[0-9]+-[0-9]p","miRNA",miRNAs$gene))
@@ -101,23 +121,28 @@ lincRNAs <- lincRNAs %>% add_column(type = "lincRNAs")
 miRNAs <- miRNAs %>% add_column(type = "miRNAs")
 test <- rbind(lincRNAs,miRNAs)
 test2 <- rbind(test,TFs)
-test_last <-  rbind(test2,genes)
+test_last <-  rbind(test2,coding)
 
 TF <- read.csv(file = "doc/TF_list.txt",sep = "")
 TF_list <- TF$TF_ID
 
 library(VennDiagram)
 library(ggplot2)
-oveer <- calculate.overlap(list(genes=genes$gene,TF=TF_list,filename=NULL))
+oveer <- calculate.overlap(list(coding=coding$gene,TF=TF_list,filename=NULL))
 
+xw <-  list(A=NewGOA_genes1$gene,
+            B=in_both$gene)
+venn_object <- venn.diagram(xw, filename = NULL)
+grid.draw(venn_object)
 TF_last <- oveer$a2
 TF_last <- as_tibble(TF_last)
 TF_last <- TF_last %>% add_column(type = "TF")
-TF_last <- rename(TF_last,gene=value)
-TFs <- semi_join(genes,TF_last,by = NULL, copy=FALSE)
+TF_last <- rename(TF_last, gene = value)
+# if it is not working, then colnames(TF_last)[colnames(TF_last) == "value"] <- "gene"
+TFs <- semi_join(coding,TF_last,by = NULL, copy=FALSE)
 TFs <- TFs %>% add_column(type = "TFs")
-genes <- anti_join(genes,TF_last,by = NULL, copy=FALSE)
-genes <- genes %>% add_column(type = "genes")
+coding <- anti_join(coding,TF_last,by = NULL, copy=FALSE)
+coding <- coding %>% add_column(type = "coding")
 
 
 common <- plot.new()
@@ -172,63 +197,129 @@ getGeneFDN <- function(edgeList, gene, source.col=1, target.col=2) {
 }
 edgeList <- read.table(here("data/seidr/backbone/edgelist2.txt"))
 bla_FDG <- getGeneFDN(edgeList,"TRINITY_DN23326_c0_g1_i1")
+bla_FDG <- bla_FDG[! bla_FDG %in% removing]
+lincRNA_bla1 <-  bla_FDG[grep("TRINITY",bla_FDG)]
+c1 <- plotEigengene(dat, "TRINITY_DN23326_c0_g1_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c1)
+ggsave(filename=here("data/analysis/figures_new//candidate1_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes <- unlist(SDN_list) %>% unique()
 
 bla_FDG2 <- getGeneFDN(edgeList,"TRINITY_DN16429_c0_g1_i2")
+bla_FDG2 <- bla_FDG2[! bla_FDG2 %in% removing]
+lincRNA_bla2 <-  bla_FDG2[grep("TRINITY",bla_FDG2)]
+c2 <- plotEigengene(dat, "TRINITY_DN16429_c0_g1_i2",rep("bla", nrow(dat)),samples$Stages)
+plot(c2)
+ggsave(filename=here("data/analysis/figures_new//candidate2_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG2, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes2 <- unlist(SDN_list) %>% unique()
 bla_FDG3 <- getGeneFDN(edgeList,"TRINITY_DN58094_c0_g2_i1")
+bla_FDG3 <- bla_FDG3[! bla_FDG3 %in% removing]
+lincRNA_bla3 <-  bla_FDG3[grep("TRINITY",bla_FDG3)]
+c3 <- plotEigengene(dat, "TRINITY_DN58094_c0_g2_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c3)
+ggsave(filename=here("data/analysis/figures_new//candidate3_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG3, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes3 <- unlist(SDN_list) %>% unique()
 
 bla_FDG4 <- getGeneFDN(edgeList,"TRINITY_DN9869_c0_g1_i5")
+c4 <- plotEigengene(dat, "TRINITY_DN9869_c0_g1_i5",rep("bla", nrow(dat)),samples$Stages)
+plot(c4)
+ggsave(filename=here("data/analysis/figures_new//candidate4_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG4, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes4 <- unlist(SDN_list) %>% unique()
 bla_FDG5 <- getGeneFDN(edgeList,"TRINITY_DN19049_c0_g1_i1")
+bla_FDG5 <- bla_FDG5[! bla_FDG5 %in% removing]
+lincRNA_bla5 <-  bla_FDG5[grep("TRINITY",bla_FDG5)]
+c5 <- plotEigengene(dat, "TRINITY_DN19049_c0_g1_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c5)
+ggsave(filename=here("data/analysis/figures_new//candidate5_PR.png"),device ="png",dpi = 600)
+write_excel_csv2(jk,file = "doc/FDNs/genes11.csv",col_names = F,quote = "none")
 SDN_list <- lapply(bla_FDG5, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes5 <- unlist(SDN_list) %>% unique()
 bla_FDG6 <- getGeneFDN(edgeList,"TRINITY_DN52747_c1_g1_i1")
+bla_FDG6 <- bla_FDG6[! bla_FDG6 %in% removing]
+lincRNA_bla6 <-  bla_FDG6[grep("TRINITY",bla_FDG6)]
+c6 <- plotEigengene(dat, "TRINITY_DN52747_c1_g1_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c6)
+ggsave(filename=here("data/analysis/figures_new//candidate6_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG6, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes6 <- unlist(SDN_list) %>% unique()
 bla_FDG7 <- getGeneFDN(edgeList,"TRINITY_DN24450_c0_g1_i1")
+bla_FDG7 <- bla_FDG7[! bla_FDG7 %in% removing]
+lincRNA_bla7 <-  bla_FDG7[grep("TRINITY",bla_FDG7)]
+c7 <- plotEigengene(dat, "TRINITY_DN24450_c0_g1_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c7)
+ggsave(filename=here("data/analysis/figures_new//candidate7_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG7, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes7 <- unlist(SDN_list) %>% unique()
 bla_FDG8 <- getGeneFDN(edgeList,"TRINITY_DN58806_c0_g1_i1")
+bla_FDG8 <- bla_FDG8[! bla_FDG8 %in% removing]
+lincRNA_bla8 <-  bla_FDG8[grep("TRINITY",bla_FDG8)]
+c8 <- plotEigengene(dat, "TRINITY_DN58806_c0_g1_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c8)
+ggsave(filename=here("data/analysis/figures_new//candidate8_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG8, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes8 <- unlist(SDN_list) %>% unique()
 bla_FDG9 <- getGeneFDN(edgeList,"TRINITY_DN135093_c0_g1_i1")
+bla_FDG9 <- bla_FDG9[! bla_FDG9 %in% removing]
+lincRNA_bla9 <-  bla_FDG9[grep("TRINITY",bla_FDG9)]
+c9 <- plotEigengene(dat, "TRINITY_DN135093_c0_g1_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c9)
+ggsave(filename=here("data/analysis/figures_new//candidate9_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG9, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes9 <- unlist(SDN_list) %>% unique()
 bla_FDG10 <- getGeneFDN(edgeList,"TRINITY_DN18510_c0_g1_i13")
+c10 <- plotEigengene(dat, "TRINITY_DN18510_c0_g1_i13",rep("bla", nrow(dat)),samples$Stages)
+plot(c10)
+ggsave(filename=here("data/analysis/figures_new//candidate10_PR.png"),device ="png",dpi = 600)
+
 SDN_list <- lapply(bla_FDG10, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes10 <- unlist(SDN_list) %>% unique()
 bla_FDG11 <- getGeneFDN(edgeList,"TRINITY_DN15918_c0_g1_i1")
+bla_FDG11 <- bla_FDG11[! bla_FDG11 %in% removing]
+lincRNA_bla11 <-  bla_FDG11[grep("TRINITY",bla_FDG11)]
+c11 <- plotEigengene(dat, "TRINITY_DN15918_c0_g1_i1",rep("bla", nrow(dat)),samples$Stages)
+plot(c11)
+ggsave(filename=here("data/analysis/figures_new//candidate9_PR.png"),device ="png",dpi = 600)
 SDN_list <- lapply(bla_FDG11, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
 SDN_genes11 <- unlist(SDN_list) %>% unique()
-bla_FDG12 <- getGeneFDN(edgeList,"TRINITY_DN37788_c0_g2_i2")
+bla_FDG12 <- getGeneFDN(edgeList,"TRINITY_DN3664_c0_g2_i18")
+bla_FDG12 <- bla_FDG12[! bla_FDG12 %in% removing]
+lincRNA_bla12 <-  bla_FDG12[grep("TRINITY",bla_FDG12)]
+c12 <- plotEigengene(dat, "TRINITY_DN3664_c0_g2_i18",rep("bla", nrow(dat)),samples$Stages)
+plot(c12)
+ggsave(filename=here("data/analysis/figures_new//candidate10_PR.png"),device ="png",dpi = 600)
 SDN_list <- lapply(bla_FDG12, function(gene){
   SDN <- getGeneFDN(edgeList, gene)
 })
@@ -287,16 +378,15 @@ plotEigengene(dat, "MA_16299g0010",rep("bla", nrow(dat)),samples$Stages, title =
 
 
 # enrichment
-bla_FDG_enr3 <- gopher(genes=bla_FDG3, alpha = 0.05, task=list("go", "mapman","kegg","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
+bla_FDG_enr9 <- gopher(genes=bla_FDG9, alpha = 0.05, task=list("go", "mapman","kegg","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
 bla_FDG_enr_2nd <- gopher(genes=SDN_genes12, alpha = 0.05, task=list("go", "mapman","kegg","pfam"), background = InfomapClusters$gene, url="pabies", endpoint = "enrichment")
 plotEnrichedTreemap(x = bla_FDG_enr9, enrichment = "mapman") #,namespace = "BP")
 
 
 load(here("data/analysis/seidr/network.rda"))
 samples <- read_csv(here("doc/samples_B2.csv"))
-
-
-
+gigetto <- read_tsv("data/analysis/DE/vst-aware_genes+TEs.tsv")
+gigi <- read_tsv(here("doc/network_matrix.tsv")) 
 plotEigengene(dat, "TRINITY_DN10144_c0_g1_i2",rep("bla", nrow(dat)),samples$Stages)
 ##plotEigengene(dat, "TRINITY_DN101668_c0_g1_i5",rep("bla", nrow(dat)),samples$Stages)
 ##plotEigengene(dat, "TRINITY_DN10359_c0_g1_i8",rep("bla", nrow(dat)),samples$Stages)
@@ -432,7 +522,7 @@ plotEigengene(dat, "TRINITY_DN8704_c0_g1_i1",rep("bla", nrow(dat)),samples$Stage
 
 
 
-plotEigengene(dat, bla_FDG3, time = samples$Stages,rep("bla", nrow(dat)))#, multiline = F)
+plotEigengene(dat, bla_FDG12, time = samples$Stages,rep("bla", nrow(dat)))#, multiline = F)
 
 
 test12 <- as.tibble(dat)
@@ -523,29 +613,54 @@ abline(v=quantile(-log2(NewGOA$PredictionScore),probs=seq(0,.1,0.01)),lty=2)
 #scemo <- NewGOA %>% filter (PredictionScore == 1)
 #bla_guys <- subset(NewGOA,PredictionScore >= quantile(-log2(NewGOA$PredictionScore),probs=0.02 & PredictionScore <= 1))
 NewGOA_linc <- read_delim("functional_prediction/results/lincAnnotation.txt", delim = ",")
+
+NewGOA_linc <- NewGOA_linc[! NewGOA_linc$gene %in% removing,]
+
+
+
 range(NewGOA_linc$PredictionScore)
 percentile(NewGOA_linc$PredictionScore)
 plot(density(-log2(NewGOA_linc$PredictionScore)))
 abline(v=quantile(-log2(NewGOA_linc$PredictionScore),probs=seq(0,.1,0.01)),lty=2)
-NewGOA_genes <- read_delim("functional_prediction/results/geneAnnotation.txt", delim = ",")
+NewGOA_genes <- read_delim("functional_prediction/results/geneAnnotation_new.txt", delim = ",",
+                           col_names = c("gene","GOterm","OriginalAnnotation","PredictionScore"))
 range(NewGOA_genes$PredictionScore)
 percentile(NewGOA_genes$PredictionScore)
 plot(density(-log2(NewGOA_genes$PredictionScore)))
 abline(v=quantile(-log2(NewGOA_genes$PredictionScore),probs=seq(0,.1,0.01)),lty=2)
-plot(density(-log2(NewGOA_genes$PredictionScore)),main="NewGOA selection",ylim=c(0,0.07))
-lines(density(-log2(NewGOA_linc$PredictionScore)),col=2)
+par(mgp=c(2.3,1,0))
+plot(density(-log2(NewGOA_genes$PredictionScore)), main= NA,ylim=c(0,0.07),col="#F8766D",
+     xlab="-log2(PredictionScore)",ylab="density",cex.lab=1.0,lwd=3,bty="l")
+title(main="NewGOA selection",adj=0,cex.main= 1.5)
+New_GOA_sel = recordPlot()
+plot.new()
+New_GOA_sel
+lines(density(-log2(NewGOA_linc$PredictionScore)),col="#00BFC4",lwd=3,bty="l")
+New_GOA2 = New_GOA_sel = recordPlot()
+plot.new()
+New_GOA2
 cor.test(percentile(NewGOA_genes$PredictionScore),percentile(NewGOA_linc$PredictionScore))
-abline(v=quantile(-log2(NewGOA_genes$PredictionScore),probs=seq(0,.1,0.03)),lty=2)
-abline(v=quantile(-log2(NewGOA_linc$PredictionScore),probs=seq(0,.1,0.03)),lty=2, col=2)
+abline(v=quantile(-log2(NewGOA_genes$PredictionScore),probs=seq(0,.1,0.03)),lty=2,col="#F8766D",lwd=1.0)
+abline(v=quantile(-log2(NewGOA_linc$PredictionScore),probs=seq(0,.1,0.03)),lty=2, col="#00BFC4",lwd=1.0)
 legend("right", bty = "n",
-       fill = c(pal12[6],pal_grey[9]),
-       legend=c("genes", "lincRNAs"), cex = 1.2)
-
-abline(v=quantile(-log2(NewGOA_linc$PredictionScore)),probs=)
-
-NewGOA_genes <- NewGOA_genes %>% add_column(type = "genes")
+       legend=c("coding","lincRNA"), border = c("#F8766D","#00BFC4"),
+       col= c("#F8766D","#00BFC4"),pch=22,pt.lwd=1.5,
+       title = "type",title.adj= 0.15,cex = 1.0)
+NewGOA_last.pdf = New_GOA2 = New_GOA_sel = recordPlot()
+plot.new()
+NewGOA_last.pdf
+dev.off()
+pdf("data/analysis/figures_new/NewGOA_last2.pdf")
+png("data/analysis/figures_new/NewGOA_last.png",width = 600,height = 350)
+NewGOA_genes <- NewGOA_genes %>% add_column(type = "coding")
 NewGOA_linc <- NewGOA_linc %>% add_column(type = "lincRNAs")
 newGOA_total <- rbind(NewGOA_genes,NewGOA_linc)
+
+
+
+library(scales)
+show_col(hue_pal()(2))
+
 
 library(ggplot2)
 library(ggridges)
@@ -556,14 +671,14 @@ micio <- ggplot(newGOA_total,aes(x=-log2(PredictionScore),colour=type)) +
   labs(title = "NewGOA selection") +
   theme(text=element_text(size=15)) +
   theme(plot.title = element_text(face = "bold",size=20)) +
-  theme_classic() 
-  #geom_vline(xintercept=-log2(newGOA_total$PredictionScore),seq(0,.1,by=0.03))
+  theme_classic()  
+  #geom_vline(xintercept=-log2(newGOA_total$PredictionScore),seq(0,.1,by=0.03),col=type)
 plot(micio)
 ggsave(filename=here("data/analysis/figures_new//NewGOA_selection.png"),device ="png",dpi = 600)
 dev.off()
 
-micio + geom_vline(xintercept=-log2(newGOA_total$PredictionScore),seq(0,.1,by=0.03),colour=newGOA_total$type)
-
+mi2 <- micio + geom_vline(xintercept=-log2(NewGOA_linc$PredictionScore),seq(0,.1,by=0.03)) #,colour=newGOA_total$type)
+plot(mi2)
 plot(rank(log2(NewGOA_linc$PredictionScore)), 
      rank(log2(NewGOA_genes$PredictionScore)), 
      cex = 0.1, xlab = "linc", ylab = "genes")
@@ -580,7 +695,7 @@ selected_miRNAs <- subset(NewGOA_miRNAs,PredictionScore >= 2^-13)
 length(unique(selected_miRNAs$gene))
 only_selected_miRNAs <- unique(selected_miRNAs$gene)
 selected_linc_ord <- selected_linc[order(selected_linc$PredictionScore,decreasing = TRUE), ]
-NewGOA_cluster1_miRNAs <-  subset(only_selected_miRNAs, only_selected_miRNAs %in% miRNA_1$gene)
+NewGOA_cluster3_miRNAs <-  subset(only_selected_miRNAs, only_selected_miRNAs %in% miRNA_3$gene)
 
 cl1 <- matrix(c(1037,796,1019,526,23,13),ncol=2,byrow = TRUE)
 colnames(cl1) <- c("numbers","numbers_NewGOA")
