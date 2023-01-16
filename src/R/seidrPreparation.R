@@ -29,16 +29,22 @@ sels_genes_TEs <- rangeFeatureSelect(counts=as.matrix(vst_genes_TEs),
 vst.cutoff <- 1
 sel_genes_TEs <- vst_genes_TEs[sels_genes_TEs[[vst.cutoff + 1]],]
 #' # Data lincRNAs
-vst_linc <- read_tsv(here("data/analysis/DE/vst-aware_linc.tsv"),
+vst_linc_new <- read_tsv(here("data/analysis/DE/vst-aware_linc_new.tsv"),
                      col_types=cols(
                        .default = col_double(),
                        ID = col_character())) %>% 
   column_to_rownames("ID")
-sels_linc <- rangeFeatureSelect(counts=as.matrix(vst_linc),
+sels_linc_new <- rangeFeatureSelect(counts=as.matrix(vst_linc_new),
                                 conditions=factor(samples$Stages),
                                 nrep=3)
-vst.cutoff <- 1
-sel_linc <- vst_linc[sels_linc[[vst.cutoff + 1]],]
+
+# select 1.7 as a cutoff
+c.sel <- featureSelect(counts=as.matrix(vst_linc_new),
+                            conditions=factor(samples$Stages),
+                            nrep=3,exp = 1.7)
+
+sel_linc_new <- vst_linc[c.sel,]
+
 #' # Data miRNAs (those are already filtered, just to add)
 miRNA <- suppressWarnings(read_csv("sRNA/ShortStack_genome/Pabies_SE_miRNA_filtered_exp1rep3tp1_noOutlier_zinbNormalised_counts.csv",
                                    col_types=cols(
