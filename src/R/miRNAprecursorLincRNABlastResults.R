@@ -21,7 +21,7 @@ suppressPackageStartupMessages({
 
 #' # Data
 #' A lot of the miRNA precursor are found in the lncRNA set
-res_prec <- readBlast(here("data/blastn/linc_network.fasta_Pabies_SE_miRNA.precursor.blt"),
+res_prec <- readBlast(here("precursors/linc_network.fasta_Pabies_SE_miRNA.precursor.blt"),
           format=BM8ext)
 
 #' # Session Info

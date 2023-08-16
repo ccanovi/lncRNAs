@@ -34,7 +34,7 @@ hpal <- colorRampPalette(c("blue","white","red"))(100)
 #' * Metadata
 #' Sample information
 
-samples <- read_csv(here("doc/samples_B2.csv"))
+samples <- read_csv(here("doc/samples_final.csv"))
 
 #' # Raw data
 filelist <- list.files(here("data/Salmon"), 
@@ -53,32 +53,32 @@ stopifnot(all(match(sub("_sortmerna.*","",basename(dirname(filelist))),
 names(filelist) <- samples$ID
 
 #' Read the expression at the gene level
-
-counts <- suppressMessages(round(tximport(files = filelist, 
+txi <- suppressMessages(tximport(files = filelist, 
                                   type = "salmon",
-                                  txOut=TRUE)$counts))
+                                  txOut=TRUE))
 
 #' combine technical replicates
 
 samples$ID <- sub("_L00[1,2]", "",
                   samples$ScilifeID)
-counts <- do.call(
+counts <- round(do.call(
   cbind,
-  lapply(split.data.frame(t(counts),
+  lapply(split.data.frame(t(txi$counts),
                           samples$ID),
-         colSums))
+         colSums)))
+
+#tpm <-  do.call(
+#  cbind,
+#  lapply(split.data.frame(t(txi$abundance),
+#                          samples$ID),
+#         colMeans))
 
 csamples <- samples[,-1]
 csamples <- csamples[match(colnames(counts),csamples$ID),]
 
 #' read the expression for the pool of lincRNAs we found 
-linc_read <- read_delim("~/Git/lncRNAs/doc/time_expression_nc_filtered.tsv",
-                        delim = " ")
-load(here("doc/extra_filtering.rda"))
-linc_read <- linc_read[! linc_read$Transcript.ID %in% removing,]
-
-linc <- linc_read$Transcript.ID
-
+linc_read <- read_tsv("~/Git/lncRNAs/doc/lincRNAs.tsv")
+linc <- linc_read$TRINITY_ID
 counts <- counts[linc, ]
 
 
@@ -95,7 +95,7 @@ sprintf("%s%% percent (%s) of %s genes are not expressed",
 dat <- tibble(x=colnames(counts),y=colSums(counts)) %>% 
   bind_cols(csamples)
 
-ggplot(dat,aes(x,y,fill=samples$Stages)) + geom_col() + 
+ggplot(dat,aes(x,y,fill=csamples$Stages)) + geom_col() + 
   scale_y_continuous(name="reads") +
   theme(axis.text.x=element_text(angle=90,size=4),axis.title.x=element_blank())
 
@@ -142,7 +142,7 @@ zinb <- zinbwave(se,K=0,epsilon=1e12,
                  observationalWeights=TRUE)
 
 
-save(zinb,file=here("data/analysis/salmon/zinb_new.rda"))
+save(zinb,file=here("data/analysis/salmon/zinb_linc.rda"))
 
 #' Check the size factors (_i.e._ the sequencing library size effect)
 dds <- DESeqDataSet(zinb,design=~Stages)
@@ -151,25 +151,24 @@ dds <- DESeq(dds,
              useT = TRUE, 
              minmu = 1e-6)
 
-save(dds,file=here("data/analysis/salmon/dds_linc_new.rda"))
+save(dds,file=here("data/analysis/salmon/dds_linc.rda"))
 
 #' ## Variance Stabilising Transformation
 vsd <- varianceStabilizingTransformation(dds, blind=TRUE)
 vst <- assay(vsd)
 vst <- vst - min(vst)
-save(vst,file=here("data/analysis/DE/vst-blind_linc_new.rda"))
+save(vst,file=here("data/analysis/DE/vst-blind_linc.rda"))
 
 #' ## Variance Stabilising Transformation
 vsda <- varianceStabilizingTransformation(dds, blind=FALSE)
 vsta <- assay(vsda)
 vsta <- vsta - min(vsta)
-save(vsta,file=here("data/analysis/DE/vst-aware_linc_new.rda"))
-
+save(vsta,file=here("data/analysis/DE/vst-aware_linc.rda"))
 # prepare the data to build the network
 #ID <- rownames(vsta)
 #vsta <- cbind(ID,vsta)
 #vsta_tibble <- as_tibble(vsta)
-#write_tsv(vsta_tibble,path=here("data/analysis/DE/vst-aware_linc.tsv"))
+#write_tsv(vsta_tibble,path=here("data/analysis/DE/vst-aware_linc_new.tsv"))
 #thing <- read_tsv(here("data/analysis/DE/vst-aware_linc.tsv"))
 #library(Biostrings)
 #seq <- readDNAStringSet("data/trinity/Trinity.fasta")
@@ -246,8 +245,8 @@ conds <- factor(csamples$Stages)
 sels <- rangeFeatureSelect(counts=vsta,
                            conditions=conds,
                            nrep=3)
-vst.cutoff <- 1
-
+vst.cutoff <- 2
+sel_linc_new <- vsta[sels[[vst.cutoff + 1]],]
 #' * Heatmap of "all" genes
 
 mar <- par("mar")

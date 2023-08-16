@@ -314,8 +314,8 @@ down <- lapply(res_sig_list, function(x){
 })
 
 nr_DElincRNAs <- cbind(elementNROWS(up), elementNROWS(down))
-colnames(nr_DElinc) <- c("up_regulated", "down_regulated")
-rownames(nr_DElinc) <- c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8")
+colnames(nr_DElincRNAs) <- c("up_regulated", "down_regulated")
+rownames(nr_DElincRNAs) <- c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8")
 
 barplot(t(nr_DElincRNAs),
         beside = TRUE,
@@ -350,8 +350,8 @@ legend("top", bty = "n",
        legend=c("up-regulated", "down-regulated"), cex = 1.2)
 
 
-la <- data.frame(numbers=c(1,1501,469,465,507,980,575,
-                           0,443,554,468,904,1119,901),
+la <- data.frame(numbers=c(0,381,248,244,270,458,235,
+                           0,179,289,251,447,447,340),
                     Stage_comparison = c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8",
                                          "1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8"),
                     regulation = c("up-regulated","up-regulated","up-regulated","up-regulated","up-regulated","up-regulated","up-regulated",
@@ -393,7 +393,7 @@ g
 library(cowplot)
 new_bla <- plot_grid(m,g,p,l,labels=c("A","B","C","D"),ncol=2)#vjust = 1.3,ncol=2)#hjust=-20,)
 plot(new_bla)
-ggsave(filename=here("data/analysis/figures_new//PCA_DE_figure_last.png"),device ="png",dpi = 600)
+ggsave(filename=here("data/analysis/figures_new//PCA_DE_figure1_last.png"),device ="png",dpi = 600)
 # working on genes+TEs
 load(here("data/analysis/salmon/dds_genes+TEs.rda"))
 load(here("data/analysis/DE/vst-aware_genes+TEs.rda"))

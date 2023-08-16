@@ -18,7 +18,7 @@ suppressPackageStartupMessages({
 
 #' # Data
 #' ## 90% percent identity
-dat90 <- scan(file=here("data/cdhit/linc_network_id90.fasta.clstr"),
+dat90 <- scan(file=here("data/cdhit_new/linc_network_id90.fasta.clstr"),
             what="character",sep="\n")
 pos90 <- grepl(">Cluster",dat90)
 
@@ -30,7 +30,7 @@ tab90 <- table(width(rngs90))
 barplot(tab90,log="y")
 
 #' ## 80% percent identity
-dat80 <- scan(file=here("data/cdhit/linc_network_id80.fasta.clstr"),
+dat80 <- scan(file=here("data/cdhit_new/linc_network_id80.fasta.clstr"),
               what="character",sep="\n")
 pos80 <- grepl(">Cluster",dat80)
 
@@ -49,14 +49,14 @@ barplot(m,beside=TRUE,log="y",
         legend.text=c("id80","id90"),las=2)
 
 #' # Export
-dir.create(here("data/analysis/cdhit"),recursive=TRUE,showWarnings=FALSE)
+dir.create(here("data/analysis/cdhit_new"),recursive=TRUE,showWarnings=FALSE)
 write_tsv(data.frame(ID=gsub(".*>|\\.\\.\\..*","",dat90[!pos90]),
            cluster=rep(sub(".* ","",dat90[pos90]),width(rngs90))),
-          file=here("data/analysis/cdhit/cd-hit-est_id90_cluster-membership.tsv"))
+          file=here("data/analysis/cdhit_new/cd-hit-est_id90_cluster-membership.tsv"))
 
 write_tsv(data.frame(ID=gsub(".*>|\\.\\.\\..*","",dat80[!pos80]),
                      cluster=rep(sub(".* ","",dat80[pos80]),width(rngs80))),
-          file=here("data/analysis/cdhit/cd-hit-est_id80_cluster-membership.tsv"))
+          file=here("data/analysis/cdhit_new/cd-hit-est_id80_cluster-membership.tsv"))
 
 #' # Session Info
 #' ```{r session info, echo=FALSE}

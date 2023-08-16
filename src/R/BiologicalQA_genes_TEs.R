@@ -81,7 +81,7 @@ sprintf("%s%% percent (%s) of %s genes are not expressed",
 dat <- tibble(x=colnames(counts),y=colSums(counts)) %>% 
   bind_cols(csamples)
 
-ggplot(dat,aes(x,y,fill=samples$Stages)) + geom_col() + 
+ggplot(dat,aes(x,y,fill=csamples$Stages)) + geom_col() + 
   scale_y_continuous(name="reads") +
   theme(axis.text.x=element_text(angle=90,size=4),axis.title.x=element_blank())
 
@@ -145,7 +145,7 @@ save(vsta,file=here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 #ID <- rownames(vsta)
 #vsta <- cbind(ID,vsta)
 #vsta_tibble <- as_tibble(vsta)
-#write_tsv(vsta_tibble,path=here("data/analysis/DE/vst-aware_genes+TEs.tsv"))
+#write_tsv(vsta_tibble,path=here("data/analysis/DE/vst-aware_genes_TEs.tsv"))
 
 #' * Validation
 #' 
@@ -155,8 +155,8 @@ meanSdPlot(vsta[rowSums(vsta)>0,])
 
 #' ## QC on the normalised data
 #' ### PCA
-load(here("data/analysis/salmon/dds_genes_TEs.rda"))
-load(here("data/analysis/DE/vst-aware_genes_TEs.rda"))
+#load(here("data/analysis/salmon/dds_genes_TEs.rda"))
+#load(here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 pc <- prcomp(t(vsta))
 percent <- round(summary(pc)$importance[2,]*100)
 
@@ -200,7 +200,7 @@ m
 plot(m + labs(x=paste("PC1 (",percent[1],"%)",sep=""),
               y=paste("PC2 (",percent[2],"%)",sep="")))
 
-ggplotly(p) %>% 
+ggplotly(m) %>% 
   layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
          yaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")))
 

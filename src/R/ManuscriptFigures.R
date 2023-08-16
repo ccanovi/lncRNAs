@@ -85,9 +85,41 @@ sum(metadata$seidr)
 
 #' * Do they form gene families?
 cl <- metadata %>% select(cdhit_cluster) %>% filter(!is.na(cdhit_cluster))
-nrow(unique(cl))
-table(table(cl))
+bla <- metadata %>% select(cdhit_cluster,TRINITY_ID,gmap_type,reference_ID,taxon) %>%
+                    filter(!is.na(cdhit_cluster))
+transloc <- bla %>% filter(gmap_type == "transloc")
+no_gmap <-  bla %>% filter(is.na(gmap_type))
 
+#' How many sequences
+nrow(cl)
+
+#' How many unique sequences
+nrow(unique(cl))
+tab <- table(table(cl))
+
+#' How many unique sequences in clusters with >1 member sequence
+sum(tab[-1])
+
+#' How many sequences in such clusters in total
+sum(tab[-1]*as.integer(names(tab[-1])))
+
+#' Unique loci multi cluster
+mccl <- unique(unlist(cl,use.names = FALSE)[duplicated(unlist(cl))])
+df <- metadata %>% filter(cdhit_cluster %in% mccl & !is.na(gmap_loc)) %>% select(gmap_loc,cdhit_cluster) %>% as.data.frame()
+
+#' Clusters split by exact location (definitely an under estimate as some clusters have overlapping loci that could represent isoforms too)
+uq <- lapply(split(df$gmap_loc,df$cdhit_cluster),unique)
+
+#' Among the clusters, which have a unique loci
+uloci <- uq[elementNROWS(uq)==1]
+
+#' Some of the unique loci are actually multiple / transloc. We ignore that fact for now and simply filter such loci
+#' to count only those loci that have multiple isoforms within the exact same coordinates
+sum(!grepl("\\|",uloci))
+
+linc <- metadata %>% filter(non_coding == TRUE &
+                            closest_length > 1000 &
+                            seidr == TRUE)
 #' * Are any of these conserved in other species
 # Check lincRNAPlantGenIEBlastResults.R
 

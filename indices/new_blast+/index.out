@@ -1,0 +1,11 @@
+
+
+Building a new DB, current time: 08/15/2023 16:08:40
+New DB name:   /mnt/picea/home/ccanovi/Git/lncRNAs/indices/new_blast+/linc_network.fasta
+New DB title:  lincRNA
+Sequence type: Nucleotide
+Deleted existing BLAST database with identical name.
+Keep Linkouts: T
+Keep MBits: T
+Maximum file size: 1000000000B
+Adding sequences from FASTA; added 5589 sequences in 122.89 seconds.

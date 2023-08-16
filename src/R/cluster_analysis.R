@@ -11,7 +11,7 @@ network <- read.delim("data/seidr/backbone/edgelist2.txt", header=TRUE, stringsA
 
 #Genes in Cluster 
 InfomapClusters <- read.delim("data/seidr/backbone/infomapClusters.tsv", stringsAsFactors = FALSE)
-
+InfomapClusters <- InfomapClusters[! InfomapClusters$gene %in% removing,]
 #interesting clusters in the nettwork
 cluster1 <- subset(InfomapClusters, cluster == "Cluster1")
 cluster2 <- subset(InfomapClusters, cluster == "Cluster2")

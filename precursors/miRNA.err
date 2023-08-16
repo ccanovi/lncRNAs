@@ -1,0 +1,40 @@
++ source /mnt/picea/home/ccanovi/Git/lncRNAs/pipeline/../UPSCb-common/src/bash/functions.sh
++ FMT='6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen'
++ EVALUE=1e-5
++ PROC=1
++ OPTIONS=
++ USAGETXT='
+	Usage: /tmp/slurmd/job04545/slurm_script [options] <singularity container><blast command> <fasta file> <index> <out dir>
+
+	Options:
+                -f the output format (default to 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen)
+                -e the e-value (default to 1e-5)
+		-p number of threads to use (default 1)
+		-b blast options (example -task blastn instead of megablast)
+
+        Note:
+	     Providing the -f option is broken at the moment
+'
++ getopts e:f:p:b: option
++ case "$option" in
++ PROC=8
++ getopts e:f:p:b: option
+++ expr 3 - 1
++ shift 2
++ [[ 5 != 5 ]]
++ [[ -z /mnt:/mnt ]]
++ [[ ! -f /mnt/picea/storage/singularity/kogia/ncbi-blast_2.11.0+.sif ]]
++ BLAST=
++ EXT=nhr
++ case "$2" in
++ BLAST=blastn
++ '[' '!' -f /mnt/picea/home/ccanovi/Git/lncRNAs/precursors/Pabies_SE_miRNA.precursor.fa ']'
++ '[' '!' -f /mnt/picea/home/ccanovi/Git/lncRNAs/indices/new_blast+/linc_network.fasta.nhr ']'
++ '[' '!' -d /mnt/picea/home/ccanovi/Git/lncRNAs/precursors ']'
++ echo Blasting
+++ basename /mnt/picea/home/ccanovi/Git/lncRNAs/indices/new_blast+/linc_network.fasta
+++ basename /mnt/picea/home/ccanovi/Git/lncRNAs/precursors/Pabies_SE_miRNA.precursor.blt
++ fnam=linc_network.fasta_Pabies_SE_miRNA.precursor.blt
++ singularity exec /mnt/picea/storage/singularity/kogia/ncbi-blast_2.11.0+.sif blastn -db /mnt/picea/home/ccanovi/Git/lncRNAs/indices/new_blast+/linc_network.fasta -query /mnt/picea/home/ccanovi/Git/lncRNAs/precursors/Pabies_SE_miRNA.precursor.fa -out /mnt/picea/home/ccanovi/Git/lncRNAs/precursors/linc_network.fasta_Pabies_SE_miRNA.precursor.blt -evalue 1e-5 -num_threads 8 -outfmt '6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen'
+INFO:    Environment variable SINGULARITY_BINDPATH is set, but APPTAINER_BINDPATH is preferred
++ echo Done
