@@ -206,7 +206,8 @@ load(here("data/analysis/salmon/dds_linc.rda"))
 
 #' ## Normalisation for visualisation
 load(here("data/analysis/DE/vst-aware_linc.rda"))
-
+load(here("data/analysis/salmon/dds_genes_TEs.rda"))
+load(here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 #' ## Gene of interests
 #' ```{r goi, echo=FALSE,eval=FALSE}
 #' CHANGEME - Here, you can plot the expression pattern of your gene of
@@ -220,11 +221,11 @@ stopifnot(all(goi %in% rownames(vsta)))
 dev.null <- lapply(goi,line_plot,dds=dds,vst=vsta)
 
 #' ## Differential Expression
-#dds <- DESeq(dds)
+dds <- DESeq(dds)
 
 #' * Dispersion estimation
 #' The dispersion estimation is adequate
-plotDispEsts(dds)
+#plotDispEsts(dds)
 
 #' Check the different contrasts
 resultsNames(dds)
@@ -312,32 +313,32 @@ down <- lapply(res_sig_list, function(x){
     rownames(ab)
 })
 
-nr_DElinc <- cbind(elementNROWS(up), elementNROWS(down))
-colnames(nr_DElinc) <- c("up-regulated", "down-regulated")
-rownames(nr_DElinc) <- c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8")
+nr_DElincRNAs <- cbind(elementNROWS(up), elementNROWS(down))
+colnames(nr_DElincRNAs) <- c("up_regulated", "down_regulated")
+rownames(nr_DElincRNAs) <- c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8")
 
-barplot(t(nr_DElinc),
+barplot(t(nr_DElincRNAs),
         beside = TRUE,
         legend.text = TRUE,
         xlab = "Stage comparison",
-        ylab = "Number of DE lincRNAs",
-        ylim = c(0,2000),
+        ylab = "Number of DE genes",
+        ylim = c(0,800),
         col = pal12[c(2,3)],
         args.legend = list(bty = "n", x = "top")
 )
 
-barplot2(nr_DElinc, 
+barplot2(nr_DEgenes, 
          beside = TRUE, 
          legend.text = TRUE,
          xlab = "Stage",
          ylab = "Number of DE genes",
-         ylim = c(0,2000))
+         ylim = c(0,12000))
 
 #' with bigger font size
-barplot(t(nr_DElinc), 
+barplot(t(nr_DElincRNAs), 
         beside = TRUE, 
         col = pal12[c(2,3)], 
-        ylim = c(0, 2000),
+        ylim = c(0, 800),
         cex.axis = 1.4, 
         cex.names = 1.4)
 mtext(side=1, line=3, "Stage comparison", cex=1.4)
@@ -349,7 +350,50 @@ legend("top", bty = "n",
        legend=c("up-regulated", "down-regulated"), cex = 1.2)
 
 
+la <- data.frame(numbers=c(0,381,248,244,270,458,235,
+                           0,179,289,251,447,447,340),
+                    Stage_comparison = c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8",
+                                         "1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8"),
+                    regulation = c("up-regulated","up-regulated","up-regulated","up-regulated","up-regulated","up-regulated","up-regulated",
+                                   "down-regulated","down-regulated","down-regulated","down-regulated","down-regulated","down-regulated","down-regulated"))
+l <- ggplot(la,aes(Stage_comparison,numbers,fill=regulation)) +
+  geom_bar(stat="identity", color="black",position=position_dodge()) +
+  labs(fill = NULL) +
+  labs(x = "Stage comparison") +
+  labs(y = "Number of DE lincRNAs") +
+  labs(title = "Number of up- and down-regulated lincRNAs") +
+  theme_classic() +
+  scale_fill_manual(values=pal12[c(2,3)]) +
+  theme(text=element_text(size=12)) +
+  #theme(plot.title=element_text(size=10)) +
+  theme(plot.title = element_text(face = "bold"))
+l
 
+ga <- data.frame(numbers=c(212,5603,2921,389,4148,9822,2224,
+                           333,4090,2210,1330,3795,6595,2163),
+                 Stage_comparison = c("1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8",
+                                      "1~2", "2~3", "3~4", "4~5", "5~6", "6~7", "7~8"),
+                 regulation = c("up-regulated","up-regulated","up-regulated","up-regulated","up-regulated","up-regulated","up-regulated",
+                                "down-regulated","down-regulated","down-regulated","down-regulated","down-regulated","down-regulated","down-regulated"))
+
+
+g <- ggplot(ga,aes(Stage_comparison,numbers,fill=regulation)) +
+  geom_bar(stat="identity", color="black",position=position_dodge()) +
+  labs(fill = NULL) +
+  labs(x = "Stage comparison") +
+  labs(y = "Number of DE coding") +
+  labs(title = "Number of up- and down-regulated coding") +
+  theme_classic() +
+  scale_fill_manual(values=pal12[c(2,3)]) +
+  theme(text=element_text(size=12)) +
+  #theme(plot.title=element_text(size=10)) +
+  theme(plot.title = element_text(face = "bold"))
+g
+
+library(cowplot)
+new_bla <- plot_grid(m,g,p,l,labels=c("A","B","C","D"),ncol=2)#vjust = 1.3,ncol=2)#hjust=-20,)
+plot(new_bla)
+ggsave(filename=here("data/analysis/figures_new//PCA_DE_figure1_last.png"),device ="png",dpi = 600)
 # working on genes+TEs
 load(here("data/analysis/salmon/dds_genes+TEs.rda"))
 load(here("data/analysis/DE/vst-aware_genes+TEs.rda"))

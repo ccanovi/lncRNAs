@@ -16,6 +16,9 @@ suppressPackageStartupMessages({
   library(parallel)
   library(tidyverse)
   library(tximport)
+  library(ggplot2)
+  library(ggforce)
+  library(purrr)
 })
   
 #' Helper functions
@@ -47,6 +50,8 @@ time_expression <- expressionSpecificity(
   exp.mat = vsta,
   tissues = as.character(samples_m$Stages[match(colnames(vsta),samples_m$SampleID)]),
   output = "complete")
+
+colnames(time_expression) <- gsub("aij.","",colnames(time_expression))
 
 vsta <- sapply(split.data.frame(t(as.data.frame(vsta)),colnames(vsta)),colSums)
 
@@ -85,7 +90,7 @@ metadata <- left_join(left_join(as.data.frame(counts) %>% rownames_to_column("TR
 #' ## GMAP
 #' Process all three file types, concatenate the loci if needed
 #' and report per trinity ID, including a type column
-metadata %<>% left_join(reduce(mclapply(list.files(here("data/GMAP"),
+metadata %<>% left_join(purrr::reduce(mclapply(list.files(here("data/GMAP"),
                              pattern="*_gene",
                              recursive=FALSE,
                              full.names=TRUE),
@@ -107,7 +112,7 @@ metadata %<>% left_join(reduce(mclapply(list.files(here("data/GMAP"),
 
 #' Process the original files to extract the number of exons per alignments
 metadata %<>% left_join(
-  reduce(mclapply(list.files(here("data/GMAP"),
+  purrr::reduce(mclapply(list.files(here("data/GMAP"),
                              pattern="Pabies1\\.0-Trinity\\.2\\..*\\.gz",
                              recursive=FALSE,
                              full.names=TRUE),
@@ -163,7 +168,31 @@ metadata %<>% left_join(read_table(here("data/GMAP/BedToolsSubtract/GMAP_all-Eug
   mutate(TRINITY_ID=sub(".*=","",TRINITY_ID))%>% 
   group_by(TRINITY_ID) %>% 
   summarise_all(paste,collapse="|"),by="TRINITY_ID")
-  
+
+#' ##BedtoolsClosest
+metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsClosest/genes_all_sorted-ref_genes_all.tsv"),
+            col_names = c("scaffold","X2","X3",
+                          "t_start","t_end","X6","strand","X8","ID",
+                          "X10","X11","X12","start","end",
+                          "X15","X16","X17",
+                          "GENE_ID","closest_length"),
+            col_types = cols_only("scaffold" = col_character(),
+                                  "t_start" = col_double(),
+                                  "t_end" = col_double(),
+                                  "strand" = col_character(),
+                                  "ID" = col_character(),
+                                  "start" = col_double(),
+                                  "end" = col_double(),
+                                  "GENE_ID" = col_character(),
+                                  "closest_length" = col_double())) %>% 
+  mutate(trinity_closest_percent=round(closest_length/(t_end-t_start+1)*100,digits=2)) %>% 
+  separate(ID,into=c("transcript","TRINITY_ID"), sep=";", convert = TRUE) %>% 
+    mutate(TRINITY_ID=sub(".*=","",TRINITY_ID),
+           GENE_ID=sub(".*=","",GENE_ID))%>% 
+  select(-transcript) %>% 
+  group_by(TRINITY_ID) %>% 
+  summarise_all(paste,collapse="|"),by="TRINITY_ID")
+
 #' There are about 200 thousands without any overlap, 
 #' while there are trinity IDs that intersect a gene than
 #' can be subtracted (i.e. some are wholly contained).
@@ -180,9 +209,49 @@ metadata %<>% left_join(reduce(mclapply(list.files(here("data/trmap/trinity"),
                   tibble(TRINITY_ID=scan(f,what="character"),
                          trmap_from=basename(dirname(f)))
                 },mc.cores=3L),bind_rows) %>% distinct(),by="TRINITY_ID")
-#' ### Code
 
+only_intersect <- metadata %>% filter(is.na(GENE_ID))
+only_trmap <- metadata %>% filter(is.na(trmap_from))
+only_nc <- metadata %>% filter(non_coding == TRUE)
+only_nc_BC <- metadata %>% filter(non_coding == TRUE &
+                        (!is.na(GENE_ID)) &
+                        (closest_length != 0) &
+                        (closest_length != -1) &
+                        (!is.na(score))) 
+                        
+only_nc_BC_500 <- only_nc_BC %>% filter(closest_length > 500)
+only_nc_BC_1000 <- only_nc_BC %>% filter(closest_length > 1000)
 
+(density(only_nc_BC$closest_length))
+ggplot(only_nc_BC, aes(x = closest_length)) +
+  geom_histogram(fill = "orange") + 
+  #geom_histogram(binwidth = 100, fill = "orange",alpha=0.75) + 
+  #scale_x_continuous(limits = c(min(only_nc_BC$closest_length),max(only_nc_BC$closest_length))) +
+  scale_x_continuous(trans='log10') +
+  #geom_vline(xintercept=seq(0,.1,0.01), size=0.5, color="red") +
+  #facet_zoom(xlim = c(1, 200)) + 
+  labs(x = "distance_log10", y = "Frequency") +
+  theme_bw()
+
+ggplot(only_nc_BC, aes(x = closest_length)) +
+  geom_density(fill = "orange") +
+  #scale_x_continuous(limits = c(min(only_nc_BC$closest_length),max(only_nc_BC$closest_length))) +
+  scale_x_continuous(trans='log10') +
+  labs(x = "distance_log10", y = "Frequency") +
+  #facet_zoom(xlim = c(1, 500)) + 
+  theme_classic() 
+  #geom_vline(xintercept=seq(0,.1,0.01), size=0.5, color="red")
+abline(v=quantile(-log2(NewGOA_genes$PredictionScore),probs=seq(0,.1,0.01)),lty=2)
+source(here("UPSCb-common/src/R/percentile.R"))
+percentile(only_nc_BC$closest_length)
+
+#  scale_x_continuous(limits = c(min(only_nc_BC$closest_length),max(only_nc_BC$closest_length))) +
+write_tsv(only_nc_BI,file=here("doc/lincRNAs.tsv"))
+
+only_nc_trmap <- metadata %>% filter(non_coding == TRUE &
+                          (is.na(trmap_from)))
+both <- calculate.overlap(list(BI=only_nc_BI$TRINITY_ID,trm=only_nc_trmap$TRINITY_ID,filename=NULL))
+both_final <- both$a2
 #' All the trmap are also contained in the bedtools intersect,
 #' however there are about 50,000 more that are not identified by trmap,
 #' because the intersect is probably too small
@@ -201,7 +270,7 @@ lines(density(as.numeric(
 legend("topright",lty=1,col=c(3,4),c("trmap only","both"))
 
 #' ## Diamond
-metadata %<>% left_join(read_table2(here("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz"),
+metadata %<>% left_join(read_table(here("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz"),
                        col_names = c("TRINITY_ID", "reference_ID", 
                                      "identity", "alignment_length", "mismatch",
                                      "gap_open", "start_trinity", "end_trinity", 
@@ -280,7 +349,7 @@ metadata %<>% left_join(read_table2(file = here("data/PLncPRO/Trinity.txt"),
                                                           "PLncPRO_coding_potential"=col_number())),by="TRINITY_ID")
 
 #' ## Transdecoder
-metadata %<>% left_join(read_table2(here("data/Transdecoder/Trinity.fasta.transdecoder.IDs.txt"),
+metadata %<>% left_join(read_table(here("data/Transdecoder/Trinity.fasta.transdecoder.IDs.txt"),
                                     col_names = c("X1","X2","X3",
                                                   "Transdecoder_type","Transdecoder_AA_length","Transdecoder_score","Coord"),
                                     col_types = cols_only("Transdecoder_type"=col_character(),
@@ -293,22 +362,22 @@ metadata %<>% left_join(read_table2(here("data/Transdecoder/Trinity.fasta.transd
                                  Transdecoder_score=parse_double(sub(".*=","",Transdecoder_score))),by="TRINITY_ID")
 
 #" ## Cd-hist-est
-metadata %<>% left_join(read_tsv(here("data/analysis/cdhit/cd-hit-est_id80_cluster-membership.tsv"),
+metadata %<>% left_join(read_tsv(here("data/analysis/cdhit_new/cd-hit-est_id80_cluster-membership.tsv"),
                                  show_col_types = FALSE) %>% rename(cdhit_cluster=cluster),by=c("TRINITY_ID"="ID"))
 
 #' ## PLAZA
 #' We may have to re-run the Blast at some point as not all IDs are well formatted
-metadata %<>% left_join(readBlast(here("data/blastn/plaza_linc_network.blt"),
+metadata %<>% left_join(readBlast(here("data/blastn_plaza/plaza_linc_network.blt"),
                                   plot=FALSE,verbose=FALSE,
                  format=BM8ext)$df %>% separate(col=subject.id,
-                                 into=c("Plaza_caffold","Plaza_species"),
+                                 into=c("Plaza_scaffold","Plaza_species"),
                                  sep="\\|",fill="right",extra="drop") %>% 
                    rename_with(.fn=function(x){paste0("Plaza_",x)}) %>% 
   dplyr::rename(TRINITY_ID=Plaza_query.id) %>% group_by(TRINITY_ID) %>%
   summarise_all(paste,collapse="|"),by="TRINITY_ID")
 
 #' ## miRNA
-metadata %<>% left_join(readBlast(here("data/blastn/linc_network.fasta_Pabies_SE_miRNA.precursor.blt"),
+metadata %<>% left_join(readBlast(here("precursors/linc_network.fasta_Pabies_SE_miRNA.precursor.blt"),
           format=BM8ext,verbose=FALSE,plot=FALSE)$df %>% 
   rename_with(.fn=function(x){paste0("miRNA_",x)}) %>% 
   dplyr::rename(TRINITY_ID=miRNA_subject.id) %>% group_by(TRINITY_ID) %>%
@@ -345,10 +414,25 @@ metadata %<>% mutate(non_coding=length >= 200 &
 #' * Network
 metadata %<>% mutate(seidr=TRINITY_ID %in% scan(here("data/seidr/genes.tsv"),sep="\t",what="character"))
 
+
+#' * lincRNAs
+
+metadata %<>% mutate(lincRNAs= non_coding == TRUE &
+                     closest_length > 1000)
+lincRNAs <- metadata %>% filter(non_coding == TRUE &
+                                closest_length > 1000)
+
+write_tsv(lincRNAs,file=here("doc/lincRNAs.tsv"))
+
 #' # Export
 write_tsv(metadata,file=here("data/metadata.tsv"))
 saveRDS(metadata,file=here("data/metadata.rds"))
 
+uno <- read.table(here("data/analysis/seidr/genes_bla.tsv"))
+uno <- t(uno)
+uno <- as.data.frame(uno)
+lincRNAs_bla <- uno %>% filter(grepl("TRINITY",V1))
+lincRNAs_bla_new <- lincRNAs_bla[! lincRNAs_bla$V1 %in% removing,]
 #' # Session Info
 #' ```{r session info, echo=FALSE}
 #' sessionInfo()

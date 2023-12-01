@@ -106,7 +106,7 @@ ggplot(dat,aes(x=values,group=ind,col=Stages)) +
 
 #' ## Export
 dir.create(here("data/analysis/salmon"),showWarnings=FALSE,recursive=TRUE)
-write.csv(counts,file=here("data/analysis/salmon/raw-unormalised-gene-expression_data_genes+TEs.csv"))
+write.csv(counts,file=here("data/analysis/salmon/raw-unormalised-gene-expression_data_genes_TEs.csv"))
 
 #' # Data normalisation 
 #' ## Preparation
@@ -145,7 +145,7 @@ save(vsta,file=here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 #ID <- rownames(vsta)
 #vsta <- cbind(ID,vsta)
 #vsta_tibble <- as_tibble(vsta)
-#write_tsv(vsta_tibble,path=here("data/analysis/DE/vst-aware_genes+TEs.tsv"))
+#write_tsv(vsta_tibble,path=here("data/analysis/DE/vst-aware_genes_TEs.tsv"))
 
 #' * Validation
 #' 
@@ -155,8 +155,8 @@ meanSdPlot(vsta[rowSums(vsta)>0,])
 
 #' ## QC on the normalised data
 #' ### PCA
-load(here("data/analysis/salmon/dds_genes_TEs.rda"))
-load(here("data/analysis/DE/vst-aware_genes_TEs.rda"))
+#load(here("data/analysis/salmon/dds_genes_TEs.rda"))
+#load(here("data/analysis/DE/vst-aware_genes_TEs.rda"))
 pc <- prcomp(t(vsta))
 percent <- round(summary(pc)$importance[2,]*100)
 
@@ -185,15 +185,22 @@ pc.dat <- bind_cols(PC1=pc$x[,1],
                     PC2=pc$x[,2],
                     csamples)
 
-p <- ggplot(pc.dat,aes(x=PC2,y=PC1,col=Stages,text=dds$ID)) + 
-  geom_point(size=2) + 
-  ggtitle("Principal Component Analysis genes")
+m <- ggplot(pc.dat,aes(x=PC2,y=PC1,col=Stages,text=dds$ID)) + 
+  geom_point(size=2) +
+  theme_classic() +
+  ggtitle("Principal Component Analysis coding") +
           #,subtitle="variance stabilized counts") 
+  labs(x=paste("PC1 (",percent[1],"%)",sep=""),
+       y=paste("PC2 (",percent[2],"%)",sep="")) +
+  theme(text=element_text(size=12)) +
+  #theme(plot.title=element_text(size=20)) +
+  theme(plot.title = element_text(face = "bold"))
+m
 
-plot(p + labs(x=paste("PC1 (",percent[1],"%)",sep=""),
+plot(m + labs(x=paste("PC1 (",percent[1],"%)",sep=""),
               y=paste("PC2 (",percent[2],"%)",sep="")))
 
-ggplotly(p) %>% 
+ggplotly(m) %>% 
   layout(xaxis=list(title=paste("PC1 (",percent[1],"%)",sep="")),
          yaxis=list(title=paste("PC2 (",percent[2],"%)",sep="")))
 

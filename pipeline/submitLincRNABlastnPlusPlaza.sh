@@ -3,23 +3,24 @@
 ## error and verbose
 set -ex
 
-# modules
-module load bioinfo-tools blast
-
 ## default args
-mail="nicolas.delhomme@umu.se"
+mail="camilla.canovi@umu.se"
 in=$(realpath ../data/analysis/DE/linc_network.fasta)
-out=$(realpath ../data/blastn)
-inx=$(realpath ../PlantGenIE/genomic_blast_indices/aliases)/plaza
+out=$(realpath ../data/blastn_plaza)
+inx=/mnt/picea/storage/reference/PlantGenIE/genomic_blast_indices/aliases/plaza
+singularity=$(realpath ../singularity/kogia/ncbi-blast_2.11.0+.sif)
 cpu=12
+proj=u2019016
 
 ## create the out dir
 if [ ! -d $out ]; then
     mkdir -p $out
 fi
 
+export SINGULARITY_BINDPATH=/mnt:/mnt
+
 ## prepare
 sbatch --mail-user $mail -p core -c $cpu \
--e $out/TE.err -o $out/TE.out \
-$(realpath ../UPSCb-common/pipeline/runBlastPlus.sh) -p $cpu blastn $in $inx $out 
+-e $out/plaza.err -o $out/plaza.out -A $proj \
+$(realpath ../UPSCb-common/pipeline/runBlastPlus.sh) -p $cpu $singularity blastn $in $inx $out 
 

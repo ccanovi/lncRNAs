@@ -1,0 +1,18 @@
++ OPTIONS=
++ TYPE=nucl
++ getopts p:t: option
++ case "$option" in
++ case $OPTARG in
++ TYPE=nucl
++ getopts p:t: option
++ case "$option" in
++ OPTIONS='-title lincRNA'
++ getopts p:t: option
+++ expr 5 - 1
++ shift 4
++ OPTIONS='-title lincRNA -dbtype nucl'
++ '[' 2 '!=' 2 ']'
++ '[' '!' -f /mnt/picea/projects/spruce/uegertsdotter/22_Somatic_Embryogenesis_Project/lncRNAs/analysis/DE/linc_network.fasta ']'
++ '[' '!' -d /mnt/picea/home/ccanovi/Git/lncRNAs/indices/new_blast+ ']'
+++ basename /mnt/picea/projects/spruce/uegertsdotter/22_Somatic_Embryogenesis_Project/lncRNAs/analysis/DE/linc_network.fasta
++ makeblastdb -in /mnt/picea/projects/spruce/uegertsdotter/22_Somatic_Embryogenesis_Project/lncRNAs/analysis/DE/linc_network.fasta -out /mnt/picea/home/ccanovi/Git/lncRNAs/indices/new_blast+/linc_network.fasta -title lincRNA -dbtype nucl
