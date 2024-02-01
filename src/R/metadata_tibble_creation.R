@@ -128,7 +128,7 @@ metadata %<>% left_join(
                   },mc.cores=3L),bind_rows),by="TRINITY_ID")
 
 #' ## BedToolsIntersect
-metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsIntersect2/GMAP_all-Eugene-gene-only.tsv"),
+metadata %<>% left_join(read_table(here("data/GMAP/BedToolsIntersect2/GMAP_all-Eugene-gene-only.tsv"),
                           col_names = c("scaffold","X2","X3",
                                         "X4","X5","X6","X7","X8","TRINITY_ID",
                                         "X10","X11","X12","start","end","X15",
@@ -149,7 +149,7 @@ metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsIntersect2/GMAP_all-
 
 
 #' ## BedToolsSubtract
-metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsSubtract/GMAP_all-Eugene-gene-only_no-self_no-full-overlap.gff3"),
+metadata %<>% left_join(read_table(here("data/GMAP/BedToolsSubtract/GMAP_all-Eugene-gene-only_no-self_no-full-overlap.gff3"),
                         col_names = c("scaffold","X2","X3",
                                       "t_start","t_end","X6","X7","X8","TRINITY_ID",
                                       "X10","start","end",
@@ -200,6 +200,7 @@ table(subtract=!is.na(metadata$trinity_subtract_percent),
       intersect=!is.na(metadata$gene_intersect_percent))
 
 #' ## trmap
+#' ### Presence
 metadata %<>% left_join(reduce(mclapply(list.files(here("data/trmap/trinity"),
                            full.names=TRUE,
                            pattern="trmapIDs.txt",
@@ -208,6 +209,7 @@ metadata %<>% left_join(reduce(mclapply(list.files(here("data/trmap/trinity"),
                   tibble(TRINITY_ID=scan(f,what="character"),
                          trmap_from=basename(dirname(f)))
                 },mc.cores=3L),bind_rows) %>% distinct(),by="TRINITY_ID")
+
 only_intersect <- metadata %>% filter(is.na(GENE_ID))
 only_trmap <- metadata %>% filter(is.na(trmap_from))
 only_nc <- metadata %>% filter(non_coding == TRUE)
@@ -435,4 +437,3 @@ lincRNAs_bla_new <- lincRNAs_bla[! lincRNAs_bla$V1 %in% removing,]
 #' ```{r session info, echo=FALSE}
 #' sessionInfo()
 #' ```
-
