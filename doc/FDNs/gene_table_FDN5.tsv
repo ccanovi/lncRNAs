@@ -1,86 +1,58 @@
 ID	atg_description
-MA_100975g0010	AT5G54510-Auxin-responsive GH3 family protein
-MA_10204389g0010	AT2G14045-c-Myc-binding protein
-MA_10227568g0010	
-MA_10312144g0010	AT1G48820-Terpenoid cyclases/Protein prenyltransferases superfamily protein
-MA_10428020g0010	
-MA_10434741g0010	AT5G25460-transmembrane protein, putative (Protein of unknown function, DUF642)
-MA_10434903g0010	
-MA_10435131g0020	AT3G49500-RNA-dependent RNA polymerase 6
-MA_10435532g0010	
-MA_10435635g0010	
-MA_10435947g0020	AT5G45290-RING/U-box superfamily protein
-MA_10436457g0010	AT1G50840-polymerase gamma 2
-MA_10436505g0010	
-MA_10436542g0010	
-MA_10436829g0010	AT1G61050-alpha 1,4-glycosyltransferase family protein
-MA_104546g0010	AT5G13250-RING finger protein
-MA_113484g0010	AT4G28940-Phosphorylase superfamily protein
-MA_122225g0010	AT3G55230-Disease resistance-responsive (dirigent-like protein) family protein
-MA_137265g0010	AT4G37680-heptahelical protein 4
-MA_140161g0010	AT1G80570-RNI-like superfamily protein
-MA_140415g0010	AT1G69040-ACT domain repeat 4
-MA_15046g0010	AT3G13000-ubiquinone biosynthesis protein (Protein of unknown function, DUF547)
-MA_16043g0010	AT5G20810-SAUR-like auxin-responsive protein family
-MA_169757g0010	AT4G32460-choice-of-anchor C domain protein, putative (Protein of unknown function, DUF642)
-MA_17443g0020	AT3G09720-P-loop containing nucleoside triphosphate hydrolases superfamily protein
-MA_177039g0010	AT5G07280-Leucine-rich repeat transmembrane protein kinase
-MA_178902g0010	AT3G24100-Uncharacterized protein family SERF
-MA_182653g0010	AT5G12200-pyrimidine 2
-MA_188077g0010	AT1G05260-Peroxidase superfamily protein
-MA_188199g0010	AT4G23160-cysteine-rich RECEPTOR-like kinase
-MA_201267g0010	
-MA_20746g0010	AT1G11290-Pentatricopeptide repeat (PPR) superfamily protein
-MA_264506g0010	
-MA_32270g0020	
-MA_323184g0010	AT2G39210-Major facilitator superfamily protein
-MA_32409g0010	AT3G20290-EPS15 homology domain 1
-MA_32723g0010	AT1G11290-Pentatricopeptide repeat (PPR) superfamily protein
-MA_357382g0010	AT1G74670-Gibberellin-regulated family protein
-MA_3590g0010	AT5G14420-RING domain ligase2
-MA_366340g0010	AT4G11600-glutathione peroxidase 6
-MA_370739g0010	AT1G62500-Bifunctional inhibitor/lipid-transfer protein/seed storage 2S albumin superfamily protein
-MA_381265g0010	
-MA_390290g0010	AT1G56140-Leucine-rich repeat transmembrane protein kinase
-MA_41676g0020	AT2G03880-Pentatricopeptide repeat (PPR) superfamily protein
-MA_4355g0010	
-MA_437179g0010	AT3G61250-myb domain protein 17
-MA_440140g0010	AT4G24130-DUF538 family protein (Protein of unknown function, DUF538)
-MA_4522g0020	AT1G56580-plant/protein (Protein of unknown function, DUF538)
-MA_458736g0010	AT1G05260-Peroxidase superfamily protein
-MA_461914g0010	
-MA_4763496g0010	
-MA_47845g0010	AT1G62500-Bifunctional inhibitor/lipid-transfer protein/seed storage 2S albumin superfamily protein
-MA_481097g0010	AT1G28220-purine permease 3
-MA_49360g0010	AT5G53390-O-acyltransferase (WSD1-like) family protein
-MA_49450g0010	AT4G36430-Peroxidase superfamily protein
-MA_53407g0010	AT3G08970-DNAJ heat shock N-terminal domain-containing protein
-MA_612592g0010	AT5G11420-transmembrane protein, putative (Protein of unknown function, DUF642)
-MA_65022g0010	AT1G61680-terpene synthase 14
-MA_650673g0010	AT2G22070-pentatricopeptide (PPR) repeat-containing protein
-MA_66969g0010	
-MA_68001g0010	AT5G35570-O-fucosyltransferase family protein
-MA_741127g0010	AT2G43610-Chitinase family protein
-MA_74986g0020	AT3G13770-Pentatricopeptide repeat (PPR) superfamily protein
-MA_751839g0010	AT5G63620-GroES-like zinc-binding alcohol dehydrogenase family protein
-MA_76964g0020	AT3G04240-Tetratricopeptide repeat (TPR)-like superfamily protein
-MA_79492g0010	AT1G75590-SAUR-like auxin-responsive protein family
-MA_8113344g0010	AT5G61140-U5 small nuclear ribonucleoprotein helicase
-MA_8126g0010	AT3G15000-cobalt ion binding protein
-MA_824550g0010	AT3G20540-polymerase gamma 1
-MA_832086g0010	
-MA_83500g0010	AT3G50330-basic helix-loop-helix (bHLH) DNA-binding superfamily protein
-MA_8594504g0010	
-MA_8606026g0010	AT3G11980-Jojoba acyl CoA reductase-related male sterility protein
-MA_8662567g0010	AT3G12270-protein arginine methyltransferase 3
-MA_894565g0010	
-MA_89936g0010	
-MA_90899g0010	AT5G53090-NAD(P)-binding Rossmann-fold superfamily protein
-MA_93490g0010	AT3G03990-alpha/beta-Hydrolases superfamily protein
-MA_93690g0010	AT3G11550-Uncharacterized protein family (UPF0497)
-MA_941794g0010	AT4G37530-Peroxidase superfamily protein
-MA_943652g0010	
-MA_9442434g0010	AT1G67480-Galactose oxidase/kelch repeat superfamily protein
-MA_9603551g0010	AT3G22060-Receptor-like protein kinase-related family protein
-MA_98673g0010	AT3G13000-ubiquinone biosynthesis protein (Protein of unknown function, DUF547)
-MA_99523g0010	AT3G55740-proline transporter 2
+MA_10017488g0010	AT4G33670-NAD(P)-linked oxidoreductase superfamily protein
+MA_10031781g0010	AT4G17500-ethylene responsive element binding factor 1
+MA_100472g0010	AT2G01420-Auxin efflux carrier family protein
+MA_10061366g0010	AT4G27640-ARM repeat superfamily protein
+MA_10212234g0010	
+MA_103557g0010	
+MA_103557g0020	
+MA_10428769g0010	AT3G11910-ubiquitin-specific protease 13
+MA_10429029g0010	AT5G53550-YELLOW STRIPE like 3
+MA_10429494g0010	AT5G47750-D6 protein kinase like 2
+MA_10429545g0010	AT5G47910-respiratory burst oxidase homologue D
+MA_10429620g0010	AT4G17610-tRNA/rRNA methyltransferase (SpoU) family protein
+MA_10429783g0010	AT2G01630-O-Glycosyl hydrolases family 17 protein
+MA_10430089g0010	
+MA_10431406g0010	
+MA_10431486g0010	AT4G02100-Heat shock protein DnaJ with tetratricopeptide repeat-containing protein
+MA_10432971g0010	
+MA_10432971g0020	AT5G53550-YELLOW STRIPE like 3
+MA_10434007g0010	AT2G31660-ARM repeat superfamily protein
+MA_10436190g0010	AT3G59140-multidrug resistance-associated protein 14
+MA_10436190g0020	AT3G59140-multidrug resistance-associated protein 14
+MA_10436190g0030	AT3G59140-multidrug resistance-associated protein 14
+MA_10436190g0040	AT3G59140-multidrug resistance-associated protein 14
+MA_10437056g0010	AT2G45320-polyphosphatidylinositol phosphatase
+MA_114887g0010	AT2G26110-bromodomain protein (DUF761)
+MA_115118g0010	AT2G37250-adenosine kinase
+MA_12253g0010	AT5G51060-NADPH/respiratory burst oxidase protein D
+MA_130946g0010	AT4G23690-Disease resistance-responsive (dirigent-like protein) family protein
+MA_164598g0010	AT1G01280-cytochrome P450, family 703, subfamily A, polypeptide 2
+MA_166588g0010	AT1G08750-Peptidase C13 family
+MA_172452g0010	
+MA_186354g0020	AT5G39250-F-box family protein
+MA_19672g0010	AT2G40980-Protein kinase superfamily protein
+MA_215550g0010	AT5G27620-cyclin H;1
+MA_222243g0010	
+MA_24887g0010	AT3G62200-Putative endonuclease or glycosyl hydrolase
+MA_282916g0010	AT2G30630-P-loop containing nucleoside triphosphate hydrolases superfamily protein
+MA_287417g0010	
+MA_29806g0010	AT1G02370-Tetratricopeptide repeat (TPR)-like superfamily protein
+MA_31569g0020	AT5G14640-shaggy-like kinase 13
+MA_3203075g0010	
+MA_32960g0010	AT1G01490-Heavy metal transport/detoxification superfamily protein
+MA_33140g0010	AT5G23760-Copper transport protein family
+MA_583636g0010	
+MA_602830g0010	AT3G59140-multidrug resistance-associated protein 14
+MA_607295g0010	AT3G59140-multidrug resistance-associated protein 14
+MA_80564g0010	
+MA_82283g0010	AT1G60170-pre-mRNA processing ribonucleoprotein binding region-containing protein
+MA_8298525g0010	AT3G59140-multidrug resistance-associated protein 14
+MA_837862g0010	AT1G12220-Disease resistance protein (CC-NBS-LRR class) family
+MA_907276g0010	AT2G36070-translocase inner membrane subunit 44-2
+MA_9394345g0010	
+MA_9472213g0010	
+MA_94837g0010	
+MA_958153g0010	AT2G26730-Leucine-rich repeat protein kinase family protein
+MA_9821052g0010	AT1G04700-PB1 domain-containing protein tyrosine kinase
+MA_99741g0010	AT4G02760-RNI-like superfamily protein

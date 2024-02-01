@@ -1,120 +1,93 @@
 ID	atg_description
-MA_10056152g0010	AT1G51550-Kelch repeat-containing F-box family protein
-MA_10070848g0010	AT1G28530-deneddylase
-MA_10088495g0010	AT1G21170-Exocyst complex component SEC5
-MA_10096236g0010	
-MA_10131732g0010	
-MA_10190212g0010	
-MA_10205894g0010	AT5G57160-DNA ligase IV
-MA_10223157g0010	AT5G42320-Zn-dependent exopeptidases superfamily protein
-MA_10257300g0010	
-MA_10270171g0010	AT2G45500-AAA-type ATPase family protein
-MA_102706g0010	AT3G43850-hypothetical protein
-MA_10277463g0010	AT3G10572-3-phosphoinositide-dependent protein kinase-1
-MA_10311455g0010	AT3G01160-pre-rRNA-processing ESF1-like protein
-MA_103731g0010	
-MA_10425929g0010	AT2G35630-ARM repeat superfamily protein
-MA_10426455g0010	AT4G25770-alpha/beta-Hydrolases superfamily protein
-MA_10426555g0010	AT3G51570-Disease resistance protein (TIR-NBS-LRR class) family
-MA_10426713g0010	AT5G19330-ARM repeat protein interacting with ABF2
-MA_10427064g0010	AT5G40740-HAUS augmin-like complex subunit
-MA_10427106g0020	
-MA_10427389g0010	AT2G32980-HAUS augmin-like complex subunit
-MA_10427774g0050	AT3G47730-ATP-binding cassette A2
-MA_10428333g0010	AT3G07400-lipase class 3 family protein
-MA_10428379g0010	AT2G30580-DREB2A-interacting protein 2
-MA_10428462g0010	AT2G15290-translocon at inner membrane of chloroplasts 21
-MA_10428475g0010	AT2G16920-ubiquitin-conjugating enzyme 23
-MA_10428626g0010	AT5G23450-long-chain base (LCB) kinase 1
-MA_10429186g0010	AT2G22010-related to KPC1
-MA_10429212g0010	
-MA_10429245g0030	AT4G15885-kinesin motor protein-like protein
-MA_10430025g0010	
-MA_10430236g0010	
-MA_10430723g0010	
-MA_10431563g0010	AT1G27840-Transducin/WD40 repeat-like superfamily protein
-MA_10431792g0010	
-MA_10432579g0010	AT4G24100-Protein kinase superfamily protein
-MA_10433068g0010	
-MA_10433762g0010	AT5G46560-Man1-Src1p-carboxy-terminal domain protein
-MA_10434317g0010	AT5G57160-DNA ligase IV
-MA_10434606g0010	AT4G24530-O-fucosyltransferase family protein
-MA_10435009g0010	
-MA_10435569g0010	AT2G16920-ubiquitin-conjugating enzyme 23
-MA_10436131g0010	AT1G77620-P-loop containing nucleoside triphosphate hydrolases superfamily protein
-MA_10436524g0010	AT2G41700-ATP-binding cassette A1
-MA_119165g0010	AT3G12050-Aha1 domain-containing protein
-MA_120284g0010	AT4G14620-hypothetical protein (DUF506)
-MA_12280g0010	AT2G29200-pumilio 1
-MA_128728g0010	
-MA_129306g0010	AT5G42200-RING/U-box superfamily protein
-MA_129667g0010	AT2G02040-peptide transporter 2
-MA_13649g0010	
-MA_139135g0010	AT1G76130-alpha-amylase-like 2
-MA_1431939g0010	
-MA_159g0010	AT3G49000-RNA polymerase III subunit RPC82 family protein
-MA_160202g0010	AT2G18170-MAP kinase 7
-MA_165491g0010	AT5G04510-3'-phosphoinositide-dependent protein kinase 1
-MA_166860g0010	AT5G33406-hAT dimerization domain-containing protein / transposase-like protein
-MA_16805g0010	AT4G33350-Tic22-like family protein
-MA_172822g0010	
-MA_173882g0010	AT2G43950-chloroplast outer envelope protein 37
-MA_175319g0020	AT4G33650-dynamin-related protein 3A
-MA_179047g0010	AT1G25230-Calcineurin-like metallo-phosphoesterase superfamily protein
-MA_190532g0010	
-MA_190532g0020	AT3G60520-zinc ion-binding protein
-MA_1909g0010	
-MA_200163g0010	AT2G32980-HAUS augmin-like complex subunit
-MA_20165g0030	AT4G32551-transcriptional corepressor LEUNIG
-MA_203823g0010	
-MA_20484g0010	
-MA_20527g0010	AT4G25660-PPPDE putative thiol peptidase family protein
-MA_214607g0010	AT1G77600-ARM repeat superfamily protein
-MA_221668g0010	AT1G76140-Prolyl oligopeptidase family protein
-MA_24146g0010	AT3G45750-Nucleotidyltransferase family protein
-MA_30381g0010	AT1G77120-alcohol dehydrogenase 1
-MA_304675g0010	AT5G46230-hypothetical protein (Protein of unknown function, DUF538)
-MA_305120g0010	AT5G40740-HAUS augmin-like complex subunit
-MA_308230g0010	
-MA_337982g0010	AT3G16785-phospholipase D P1
-MA_34934g0010	AT1G67190-F-box/RNI-like superfamily protein
-MA_407656g0010	AT4G10730-Protein kinase superfamily protein
-MA_417g0010	AT4G09680-conserved telomere maintenance component 1
-MA_468415g0010	AT3G49000-RNA polymerase III subunit RPC82 family protein
-MA_483572g0010	
-MA_5004209g0010	AT3G15620-DNA photolyase family protein
-MA_533971g0010	
-MA_545877g0010	
-MA_55488g0010	AT4G10730-Protein kinase superfamily protein
-MA_64039g0010	AT3G13340-Transducin/WD40 repeat-like superfamily protein
-MA_656523g0010	AT5G10560-Glycosyl hydrolase family protein
-MA_689462g0010	
-MA_6938949g0010	AT1G08600-P-loop containing nucleoside triphosphate hydrolases superfamily protein
-MA_696621g0010	AT2G03880-Pentatricopeptide repeat (PPR) superfamily protein
-MA_69695g0010	
-MA_7095237g0010	AT5G13200-GRAM domain family protein
-MA_71922g0010	AT1G51130-Nse4, component of Smc5/6 DNA repair complex
-MA_727841g0010	
-MA_74765g0010	
-MA_7940170g0010	AT4G02780-Terpenoid cyclases/Protein prenyltransferases superfamily protein
-MA_8205806g0010	
-MA_8212817g0010	AT2G18170-MAP kinase 7
-MA_83197g0010	AT1G21170-Exocyst complex component SEC5
-MA_83623g0010	AT3G55960-Haloacid dehalogenase-like hydrolase (HAD) superfamily protein
-MA_87115g0020	AT2G16090-RING/U-box superfamily protein
-MA_874560g0010	
-MA_894342g0010	
-MA_895341g0010	AT1G17470-developmentally regulated G-protein 1
-MA_90007g0010	AT5G19330-ARM repeat protein interacting with ABF2
-MA_9006790g0010	
-MA_906896g0010	AT1G21650-Preprotein translocase SecA family protein
-MA_9210099g0010	
-MA_9245245g0010	
-MA_94078g0010	AT4G03080-BRI1 suppressor 1 (BSU1)-like 1
-MA_9521009g0010	AT1G34320-Ikzf5 (DUF668)
-MA_96036g0010	AT2G31510-IBR domain-containing protein
-MA_97679g0010	
-MA_98013g0010	
-MA_9822612g0010	
-MA_9891g0010	AT2G45500-AAA-type ATPase family protein
-MA_99999g0010	AT3G19300-Protein kinase superfamily protein
+MA_10137384g0010	AT1G27170-transmembrane receptors / ATP binding protein
+MA_10153396g0010	
+MA_10171923g0010	
+MA_10212474g0010	
+MA_10236470g0010	
+MA_10236907g0010	AT5G36930-Disease resistance protein (TIR-NBS-LRR class) family
+MA_10300g0030	AT1G50260-N-terminal-transmembrane-C2 domain type 5.1
+MA_10426218g0010	AT3G02040-senescence-related gene 3
+MA_10426686g0010	AT4G36940-nicotinate phosphoribosyltransferase 1
+MA_10427561g0020	AT1G15520-pleiotropic drug resistance 12
+MA_10427792g0010	
+MA_10427886g0020	
+MA_10429333g0010	AT2G30020-Protein phosphatase 2C family protein
+MA_10430133g0010	AT1G06800-alpha/beta-Hydrolases superfamily protein
+MA_10430252g0010	AT3G16170-AMP-dependent synthetase and ligase family protein
+MA_10430611g0010	AT5G03650-starch branching enzyme 2.2
+MA_10430768g0010	AT1G03780-targeting protein for XKLP2
+MA_10430919g0010	AT3G07100-Sec23/Sec24 protein transport family protein
+MA_10431401g0010	
+MA_10432837g0010	AT5G49760-Leucine-rich repeat protein kinase family protein
+MA_10432984g0010	AT4G10920-transcriptional coactivator p15 (PC4) family protein (KELP)
+MA_10433767g0010	AT3G01460-methyl-CPG-binding domain 9
+MA_10434125g0010	AT3G07130-purple acid phosphatase 15
+MA_10434355g0010	AT5G07120-sorting nexin 2B
+MA_10434357g0020	AT1G09155-phloem protein 2-B15
+MA_10435092g0020	AT2G15970-cold regulated 413 plasma membrane 1
+MA_10436028g0010	AT1G76410-RING/U-box superfamily protein
+MA_10436516g0010	AT3G45980-Histone superfamily protein
+MA_10436594g0010	AT4G08950-Phosphate-responsive 1 family protein
+MA_10436694g0010	AT1G14460-AAA-type ATPase family protein
+MA_10436776g0030	
+MA_10436799g0020	
+MA_10437151g0010	AT1G45545-WEAK CHLOROPLAST MOVEMENT UNDER BLUE LIGHT-like protein (DUF827)
+MA_107580g0020	AT3G19240-Vacuolar import/degradation, Vid27-related protein
+MA_108992g0010	AT1G74930-Integrase-type DNA-binding superfamily protein
+MA_113702g0010	AT3G12480-nuclear factor Y, subunit C11
+MA_118973g0010	
+MA_119005g0010	AT1G26560-beta glucosidase 40
+MA_120504g0010	AT4G19450-Major facilitator superfamily protein
+MA_122198g0010	AT2G46090-Diacylglycerol kinase family protein
+MA_124616g0010	AT1G76110-HMG (high mobility group) box protein with ARID/BRIGHT DNA-binding domain-containing protein
+MA_125167g0010	AT2G39510-nodulin MtN21 /EamA-like transporter family protein
+MA_1274g0010	AT1G07160-Protein phosphatase 2C family protein
+MA_174378g0010	
+MA_17927g0010	
+MA_18041g0010	AT5G42400-SET domain protein 25
+MA_187114g0010	
+MA_189802g0010	
+MA_20585g0010	AT1G12860-basic helix-loop-helix (bHLH) DNA-binding superfamily protein
+MA_210823g0010	AT3G49170-Tetratricopeptide repeat (TPR)-like superfamily protein
+MA_2226g0020	
+MA_2332g0020	AT3G62900-CW-type Zinc Finger
+MA_238448g0010	AT1G64160-Disease resistance-responsive (dirigent-like protein) family protein
+MA_26597g0010	AT1G19330-histone deacetylase complex subunit
+MA_273488g0010	
+MA_27973g0010	AT2G41660-MIZU-KUSSEI-like protein (Protein of unknown function, DUF617)
+MA_36042g0010	AT3G51680-NAD(P)-binding Rossmann-fold superfamily protein
+MA_36579g0010	
+MA_405307g0010	
+MA_40826g0010	AT1G01380-Homeodomain-like superfamily protein
+MA_4249g0010	
+MA_425144g0010	AT2G46760-D-arabinono-1,4-lactone oxidase family protein
+MA_4294210g0010	
+MA_434510g0010	AT2G34720-nuclear factor Y, subunit A4
+MA_45410g0010	AT1G19330-histone deacetylase complex subunit
+MA_460406g0010	
+MA_494946g0010	
+MA_57173g0020	AT3G13380-BRI1-like 3
+MA_57173g0030	AT3G13380-BRI1-like 3
+MA_57501g0010	AT1G80730-zinc-finger protein 1
+MA_5937864g0010	AT2G32070-Polynucleotidyl transferase, ribonuclease H-like superfamily protein
+MA_60139g0010	AT1G30500-nuclear factor Y, subunit A7
+MA_618219g0010	AT3G07130-purple acid phosphatase 15
+MA_6306g0010	AT4G10170-SNARE-like superfamily protein
+MA_63465g0020	AT1G09812-multidrug resistance protein
+MA_64700g0010	AT1G08700-Presenilin-1
+MA_74539g0010	
+MA_76618g0010	AT5G45340-cytochrome P450, family 707, subfamily A, polypeptide 3
+MA_7823219g0010	AT2G39570-ACT domain-containing protein
+MA_79374g0010	
+MA_799401g0010	AT1G01280-cytochrome P450, family 703, subfamily A, polypeptide 2
+MA_81029g0010	AT3G15210-ethylene responsive element binding factor 4
+MA_8167263g0010	AT5G64260-EXORDIUM like 2
+MA_83406g0010	AT3G17070-Peroxidase family protein
+MA_84119g0010	AT5G67520-adenosine-5'-phosphosulfate (APS) kinase 4
+MA_8664817g0010	AT1G33030-O-methyltransferase family protein
+MA_904294g0010	AT1G72310-RING/U-box superfamily protein
+MA_9142043g0010	
+MA_91773g0010	AT4G28980-CDK-activating kinase 1AT
+MA_9349g0010	AT3G57400-transmembrane protein
+MA_954050g0010	AT5G48820-inhibitor/interactor with cyclin-dependent kinase
+MA_9756g0020	AT2G28720-Histone superfamily protein
