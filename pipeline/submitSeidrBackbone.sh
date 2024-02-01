@@ -1,5 +1,5 @@
 #!/bin/bash -l
-account=u2015037
+account=u2019016
 
 # define the thresholds
 thresholds=( 2.33 2.05 1.88 1.75 1.64 1.55 1.48 1.41 1.34 1.28 )

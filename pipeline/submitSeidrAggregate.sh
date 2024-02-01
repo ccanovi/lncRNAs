@@ -2,7 +2,8 @@
 in=$(realpath ../data/seidr/results)
 sf=$(realpath ../data/seidr/sf)
 out=$(realpath ../data/seidr/aggregated)
-mail=nicolas.delhomme@umu.se
+mail=camilla.canovi@umu.se
+account=u2019016
 
 if [ ! -d $out ]; then
   mkdir -p $out
@@ -13,8 +14,7 @@ if [ ! -d $sf ]; then
   find $in -name "*.sf" -exec ln -s "{}" $sf \;
 fi
 
-module load bioinfo-tools seidr-devel
 
-sbatch --mem=128GB -o $out/aggregated.out -e $out/aggregated.err --mail-user $mail \
+sbatch --mem=128GB -o $out/aggregated.out -e $out/aggregated.err --mail-user=$mail -A $account \
 $(realpath ../UPSCb-common/pipeline/runSeidrAggregate.sh) $out $sf/*.sf
 

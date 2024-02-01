@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 email=camilla.canovi@umu.se
-proj=u2015037
+proj=u2019016
 go=~/Git/lncRNAs/functional_prediction/go.obo
 in=~/Git/lncRNAs/functional_prediction/results
 # submit the job

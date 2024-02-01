@@ -8,7 +8,6 @@ mail="camilla.canovi@umu.se"
 in=$(realpath ../data/analysis/DE/linc_network.fasta)
 out=$(realpath ../indices)/new_blast+
 proj=u2019016
-#/mnt/picea/storage/reference/Pinus-tabuliformis/fasta/P.tabuliformis_V1.0.fa.gz
 ## create the out dir
 if [ ! -d $out ]; then
     mkdir -p $out

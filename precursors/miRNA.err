@@ -4,7 +4,7 @@
 + PROC=1
 + OPTIONS=
 + USAGETXT='
-	Usage: /tmp/slurmd/job04545/slurm_script [options] <singularity container><blast command> <fasta file> <index> <out dir>
+	Usage: /tmp/slurmd/job12567/slurm_script [options] <singularity container><blast command> <fasta file> <index> <out dir>
 
 	Options:
                 -f the output format (default to 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen)

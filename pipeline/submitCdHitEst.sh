@@ -4,7 +4,7 @@
 mail=camilla.canovi@umu.se
 proj=u2019016
 in=$(realpath ../data/analysis/DE/linc_network.fasta)
-out=$(realpath ../data)/cdhit_new
+out=$(realpath ../data)/cdhit
 singularity=$(realpath ../singularity/kogia/cd-hit-est_4.8.1.sif)
 
 [[ ! -d $out ]] && mkdir -p $out

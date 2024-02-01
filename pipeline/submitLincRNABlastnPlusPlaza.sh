@@ -22,5 +22,5 @@ export SINGULARITY_BINDPATH=/mnt:/mnt
 ## prepare
 sbatch --mail-user $mail -p core -c $cpu \
 -e $out/plaza.err -o $out/plaza.out -A $proj \
-$(realpath ../UPSCb-common/pipeline/runBlastPlus.sh) -p $cpu $singularity blastn $in $inx $out 
+$(realpath runBlastPlus.sh) -p $cpu $singularity blastn $in $inx $out 
 
