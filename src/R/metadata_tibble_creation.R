@@ -44,7 +44,7 @@ colnames(counts) <- sub(".*/","",sub("_L00[1,2]_sort.*","",
 counts <- sapply(split.data.frame(t(as.data.frame(counts)),colnames(counts)),colSums)
 
 #' ## stage specificity
-load(here("data/analysis/DE/vst-aware.rda"))
+load(here("data/analysis/DE/vst-aware_linc.rda"))
 samples_m <- read.csv(here("doc/samples.csv"))
 time_expression <- expressionSpecificity(
   exp.mat = vsta,
@@ -73,11 +73,11 @@ boxplot(time_expression[time_expression[,"score"]>=0.9,"n"])
 time_expression[time_expression[,"score"]>=0.9 & time_expression[,"n"]==8,]
 
 #' Some summary statistics 
-means <- rowMeans2(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]),na.rm = TRUE)
-median <- rowMedians(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]))
-sd <- rowSds(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]))
-mad <- rowMads(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]))
-boxplot(list(mean=means,sd=sd,median=median,mad=mad))
+#means <- rowMeans2(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]),na.rm = TRUE)
+#median <- rowMedians(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]))
+#sd <- rowSds(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]))
+#mad <- rowMads(as.matrix(time_expression[,grep("aij",colnames(time_expression),value=TRUE)]))
+#boxplot(list(mean=means,sd=sd,median=median,mad=mad))
 
 #' Start a tibble to store the metadata
 colnames(counts) <- paste0("raw_",colnames(counts))
@@ -127,50 +127,8 @@ metadata %<>% left_join(
                       group_by(TRINITY_ID) %>% select(TRINITY_ID,Exon) %>% summarise_all(paste,collapse="|") 
                   },mc.cores=3L),bind_rows),by="TRINITY_ID")
 
-#' ## BedToolsIntersect
-metadata %<>% left_join(read_table(here("data/GMAP/BedToolsIntersect2/GMAP_all-Eugene-gene-only.tsv"),
-                          col_names = c("scaffold","X2","X3",
-                                        "X4","X5","X6","X7","X8","TRINITY_ID",
-                                        "X10","X11","X12","start","end","X15",
-                                        "strand","X17","GENE_ID","intersect_length"),
-                          col_types = cols_only(scaffold=col_character(),
-                                                "TRINITY_ID" = col_character(),
-                                                "start" = col_double(),
-                                                "end" = col_double(),
-                                                "strand" = col_character(),
-                                                "GENE_ID" = col_character(),
-                                                "intersect_length" = col_double())) %>% 
-  mutate(gene_intersect_percent=round(intersect_length/(end-start+1)*100,digits=2)) %>% 
-  unite(scaffold,start,end,strand,col="intersect_loc",sep="_") %>% 
-  mutate(TRINITY_ID=sub(".*=","",TRINITY_ID),
-         GENE_ID=sub(".*=","",GENE_ID))%>% 
-  group_by(TRINITY_ID) %>% 
-  summarise_all(paste,collapse="|"),by="TRINITY_ID")
-
-
-#' ## BedToolsSubtract
-metadata %<>% left_join(read_table(here("data/GMAP/BedToolsSubtract/GMAP_all-Eugene-gene-only_no-self_no-full-overlap.gff3"),
-                        col_names = c("scaffold","X2","X3",
-                                      "t_start","t_end","X6","X7","X8","TRINITY_ID",
-                                      "X10","start","end",
-                                      "X13","X14",
-                                      "strand","subtract_length"),
-                        col_types = cols_only("scaffold" = col_character(),
-                                              "t_start" = col_double(),
-                                              "t_end" = col_double(),
-                                              "TRINITY_ID" = col_character(),
-                                              "start" = col_double(),
-                                              "end" = col_double(),
-                                              "strand" = col_character(),
-                                              "subtract_length" = col_double())) %>% 
-  mutate(trinity_subtract_percent=round(subtract_length/(t_end-t_start+1)*100,digits=2)) %>% 
-  unite(scaffold,start,end,strand,col="subtract_loc",sep="_") %>% 
-  mutate(TRINITY_ID=sub(".*=","",TRINITY_ID))%>% 
-  group_by(TRINITY_ID) %>% 
-  summarise_all(paste,collapse="|"),by="TRINITY_ID")
-
 #' ##BedtoolsClosest
-metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsClosest/genes_all_sorted-ref_genes_all.tsv"),
+metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsClosest/genes_all_sorted-ref_genes_all.tsv.gz"),
             col_names = c("scaffold","X2","X3",
                           "t_start","t_end","X6","strand","X8","ID",
                           "X10","X11","X12","start","end",
@@ -193,81 +151,25 @@ metadata %<>% left_join(read_table2(here("data/GMAP/BedToolsClosest/genes_all_so
   group_by(TRINITY_ID) %>% 
   summarise_all(paste,collapse="|"),by="TRINITY_ID")
 
-#' There are about 200 thousands without any overlap, 
-#' while there are trinity IDs that intersect a gene than
-#' can be subtracted (i.e. some are wholly contained).
-table(subtract=!is.na(metadata$trinity_subtract_percent),
-      intersect=!is.na(metadata$gene_intersect_percent))
+#only_nc_BC <- metadata %>% filter(non_coding == TRUE &
+  #                      (!is.na(GENE_ID)) &
+  #                     (closest_length != 0) &
+  #                     (closest_length != -1) &
+  #                     (!is.na(score))) 
+#only_nc_BC_500 <- only_nc_BC %>% filter(closest_length > 500)
+#only_nc_BC_1000 <- only_nc_BC %>% filter(closest_length > 1000)
 
-#' ## trmap
-#' ### Presence
-metadata %<>% left_join(reduce(mclapply(list.files(here("data/trmap/trinity"),
-                           full.names=TRUE,
-                           pattern="trmapIDs.txt",
-                           recursive=TRUE),
-                function(f){
-                  tibble(TRINITY_ID=scan(f,what="character"),
-                         trmap_from=basename(dirname(f)))
-                },mc.cores=3L),bind_rows) %>% distinct(),by="TRINITY_ID")
+#ggplot(only_nc_BC, aes(x = closest_length)) +
+  #geom_histogram(fill = "orange") + 
+  #scale_x_continuous(trans='log10') +
+  #labs(x = "distance_log10", y = "Frequency") +
+  #theme_bw()
 
-only_intersect <- metadata %>% filter(is.na(GENE_ID))
-only_trmap <- metadata %>% filter(is.na(trmap_from))
-only_nc <- metadata %>% filter(non_coding == TRUE)
-only_nc_BC <- metadata %>% filter(non_coding == TRUE &
-                        (!is.na(GENE_ID)) &
-                        (closest_length != 0) &
-                        (closest_length != -1) &
-                        (!is.na(score))) 
-                        
-only_nc_BC_500 <- only_nc_BC %>% filter(closest_length > 500)
-only_nc_BC_1000 <- only_nc_BC %>% filter(closest_length > 1000)
-
-(density(only_nc_BC$closest_length))
-ggplot(only_nc_BC, aes(x = closest_length)) +
-  geom_histogram(fill = "orange") + 
-  #geom_histogram(binwidth = 100, fill = "orange",alpha=0.75) + 
-  #scale_x_continuous(limits = c(min(only_nc_BC$closest_length),max(only_nc_BC$closest_length))) +
-  scale_x_continuous(trans='log10') +
-  #geom_vline(xintercept=seq(0,.1,0.01), size=0.5, color="red") +
-  #facet_zoom(xlim = c(1, 200)) + 
-  labs(x = "distance_log10", y = "Frequency") +
-  theme_bw()
-
-ggplot(only_nc_BC, aes(x = closest_length)) +
-  geom_density(fill = "orange") +
-  #scale_x_continuous(limits = c(min(only_nc_BC$closest_length),max(only_nc_BC$closest_length))) +
-  scale_x_continuous(trans='log10') +
-  labs(x = "distance_log10", y = "Frequency") +
-  #facet_zoom(xlim = c(1, 500)) + 
-  theme_classic() 
-  #geom_vline(xintercept=seq(0,.1,0.01), size=0.5, color="red")
-abline(v=quantile(-log2(NewGOA_genes$PredictionScore),probs=seq(0,.1,0.01)),lty=2)
-source(here("UPSCb-common/src/R/percentile.R"))
-percentile(only_nc_BC$closest_length)
-
-#  scale_x_continuous(limits = c(min(only_nc_BC$closest_length),max(only_nc_BC$closest_length))) +
-write_tsv(only_nc_BI,file=here("doc/lincRNAs.tsv"))
-
-only_nc_trmap <- metadata %>% filter(non_coding == TRUE &
-                          (is.na(trmap_from)))
-both <- calculate.overlap(list(BI=only_nc_BI$TRINITY_ID,trm=only_nc_trmap$TRINITY_ID,filename=NULL))
-both_final <- both$a2
-#' All the trmap are also contained in the bedtools intersect,
-#' however there are about 50,000 more that are not identified by trmap,
-#' because the intersect is probably too small
-table(trmap=!is.na(metadata$trmap_from),
-      intersect=!is.na(metadata$gene_intersect_percent))
-
-plot(density(as.numeric(
-  unlist(strsplit(metadata$gene_intersect_percent[
-    is.na(metadata$trmap_from) & 
-      !is.na(metadata$gene_intersect_percent)],"\\|")))),
-  col=3,main="distribution of the gene intersection length")
-lines(density(as.numeric(
-  unlist(strsplit(metadata$gene_intersect_percent[
-    !is.na(metadata$trmap_from) & 
-      !is.na(metadata$gene_intersect_percent)],"\\|")))),col=4)
-legend("topright",lty=1,col=c(3,4),c("trmap only","both"))
+#ggplot(only_nc_BC, aes(x = closest_length)) +
+  #geom_density(fill = "orange") +
+  #scale_x_continuous(trans='log10') +
+  #labs(x = "distance_log10", y = "Frequency") +
+  #theme_classic() 
 
 #' ## Diamond
 metadata %<>% left_join(read_table(here("data/DIAMOND/uniref90.dmnd_Trinity.blt.gz"),
@@ -312,7 +214,7 @@ par(mar=mar)
 metadata %<>% left_join(tax_map,by="reference_ID")
 
 #' ## Sequences
-ref <- readDNAStringSet(here("data/trinity/Trinity.fasta"))
+ref <- readDNAStringSet(here("data/trinity/Trinity.fasta.gz"))
 metadata %<>% left_join(tibble(TRINITY_ID=sub(" .*","",names(ref)),
                                GC=rowSums(alphabetFrequency(ref)[,c("C","G")]) / width(ref),
                                length=width(ref)),by="TRINITY_ID")
@@ -362,7 +264,7 @@ metadata %<>% left_join(read_table(here("data/Transdecoder/Trinity.fasta.transde
                                  Transdecoder_score=parse_double(sub(".*=","",Transdecoder_score))),by="TRINITY_ID")
 
 #" ## Cd-hist-est
-metadata %<>% left_join(read_tsv(here("data/analysis/cdhit_new/cd-hit-est_id80_cluster-membership.tsv"),
+metadata %<>% left_join(read_tsv(here("data/analysis/cdhit/cd-hit-est_id80_cluster-membership.tsv"),
                                  show_col_types = FALSE) %>% rename(cdhit_cluster=cluster),by=c("TRINITY_ID"="ID"))
 
 #' ## PLAZA
@@ -382,13 +284,6 @@ metadata %<>% left_join(readBlast(here("precursors/linc_network.fasta_Pabies_SE_
   rename_with(.fn=function(x){paste0("miRNA_",x)}) %>% 
   dplyr::rename(TRINITY_ID=miRNA_subject.id) %>% group_by(TRINITY_ID) %>%
   summarise_all(paste,collapse="|") ,by="TRINITY_ID")
-
-#' ## TE
-metadata %<>% left_join(readBlast(here("data/blastn/linc_network.fasta_TE.blt"),
-                                  verbose=FALSE,format=BM8ext,plot=FALSE)$df %>% 
-  rename_with(.fn=function(x){paste0("TE_",x)}) %>% 
-  dplyr::rename(TRINITY_ID=TE_subject.id) %>% group_by(TRINITY_ID) %>%
-  summarise_all(paste,collapse="|"),by="TRINITY_ID")
 
 #' ## Infomap
 metadata %<>% left_join(read_tsv(here("data/seidr/backbone/infomapClusters.tsv"),
@@ -412,27 +307,26 @@ metadata %<>% mutate(non_coding=length >= 200 &
                        PLncPRO_coding_potential == 0)
 
 #' * Network
-metadata %<>% mutate(seidr=TRINITY_ID %in% scan(here("data/seidr/genes.tsv"),sep="\t",what="character"))
+metadata %<>% mutate(seidr=TRINITY_ID %in% scan(here("data/analysis/seidr/genes.tsv"),sep="\t",what="character"))
 
 
 #' * lincRNAs
 
 metadata %<>% mutate(lincRNAs= non_coding == TRUE &
-                     closest_length > 1000)
-lincRNAs <- metadata %>% filter(non_coding == TRUE &
-                                closest_length > 1000)
+                     !is.na(score) &
+                     as.integer(sapply(strsplit(metadata$closest_length,"\\|"),min)) > 1000) 
 
-write_tsv(lincRNAs,file=here("doc/lincRNAs.tsv"))
+lincRNAs <- metadata %>% filter(non_coding == TRUE &
+                                !is.na(score) &
+                                as.integer(sapply(strsplit(metadata$closest_length,"\\|"),min)) > 1000) 
+
+#write_tsv(lincRNAs,file=here("doc/lincRNAs.tsv"))
 
 #' # Export
-write_tsv(metadata,file=here("data/metadata.tsv"))
+write_tsv(metadata,file=here("data/metadata.tsv.gz"))
 saveRDS(metadata,file=here("data/metadata.rds"))
 
-uno <- read.table(here("data/analysis/seidr/genes_bla.tsv"))
-uno <- t(uno)
-uno <- as.data.frame(uno)
-lincRNAs_bla <- uno %>% filter(grepl("TRINITY",V1))
-lincRNAs_bla_new <- lincRNAs_bla[! lincRNAs_bla$V1 %in% removing,]
+
 #' # Session Info
 #' ```{r session info, echo=FALSE}
 #' sessionInfo()

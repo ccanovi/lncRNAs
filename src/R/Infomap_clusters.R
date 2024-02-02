@@ -1,70 +1,164 @@
+## SETUP
+# load necessary librarieslibrary(data.table)
+# load necessary libraries
 library(data.table)
-library(here)
-infomapTable <- read.delim("data/seidr/backbone/edgelist_final_network.txt", header=FALSE, stringsAsFactors=FALSE)
-#colnames(infomapTable) <- c("Path", "P1","P2","P3", "Flow", "Index", "Gene")
-# calculate the number of levels, total columns -3 info columns -1 path column
+library(reshape2)
+library(dplyr)
+library(tidyverse)
+
+## PREPARE THE DATA
+# TASK - Load the seidrResolve file into the infomapTable variable
+infomapTable <- read.delim("data/seidr/backbone/clustersResolve.txt", 
+                           header = FALSE, stringsAsFactors=FALSE)
+
+# TASK - Calculate the number of levels
+# numberLevels =  total columns - 3 (info columns) - 1 (path column)
+# Expected output: an integer
 numberLevels <- length(colnames(infomapTable)) - 4
-# create names for the levels
+
+# TASK- create a of vector names for the levels
+# ex. Level1, Level2, etc
+# Expected output: [1] "Level1" "Level2" "Level3" "Level4" ...
 levels <- sapply(1:numberLevels, function(x){
   paste0("Level", x)
 })
-# add the names to the data frame
+
+# Add the names to the data frame
 colnames(infomapTable) <- c('Path', levels, 'Flow', 'Index', 'Gene')
+
 # create a new results data frame
-res <- data.frame(Gene = infomapTable[,length(colnames(infomapTable))],
-                  Path= infomapTable[,1],
+res <- data.frame(Gene = infomapTable[, ncol(infomapTable)],
+                  Path = infomapTable[, 1],
                   stringsAsFactors = F)
-# Data always have level 1 and none of the data is NA
-res$Level1 <- infomapTable[,2]
+
+# CHECKPOINT
+head(res)
+# If everthing is ok the previous command should look similar to this
+# These geneIDs are aspen genes, for spruce they would start with "PICAB"
+#              Gene    Path
+# 1   Potra2n1c2185 1:1:1:1
+# 2  Potra2n5c11770 1:1:1:2
+# 3 Potra2n16c30312 1:1:1:3
+# 4 Potra2n15c28283 1:1:1:4
+
+# Infomap data always have level 1 and none of the data is NA,
+# we can add it directly
+res$Level1 <- as.character(infomapTable[, 2])
+
 # loop though the rest of the levels and attach the name from the previous ones
 for (level in 2:numberLevels) {
-  currentLevel <- paste0("Level",level)
+  
+  currentLevel <- paste0("Level", level)
   prevLevel <- paste0("Level",(level-1))
+  
   # join names
   res[[currentLevel]] <- paste0(res[[prevLevel]], ":", infomapTable[[currentLevel]])
+  
   # if there is an NA inside the current name, that gene doesn't belong to a cluster in that level, it turns into NA
   res[[currentLevel]] <- ifelse(res[[currentLevel]] %like% "NA", NA, res[[currentLevel]])  
 }
-df <- res
-level='Level1'
-freq1 <- as.data.frame(table(df[level]) )
-freq1$Var1 <- names(table(df[level]) )
-counts <-freq1[order(freq1$Freq, decreasing = T),]
-#how many genes in the first 20 clusters
-clusters <- length(unique(freq1$Var1))
-print(paste(level,"Clusters:", clusters))
-genes20 <- 0
-if (clusters < 20) {
-  genes20 <- sum(counts[1:clusters,2])
-} else {
-  genes20 <- sum(counts[1:20,2])  
-}
-genesTotal <- length(rownames(df))
-#print(level)
-print(paste("Genes in the top 20 clusters", genes20))
-print(paste("Genes in the network",genesTotal))
-print(round(genes20/genesTotal, digits = 4)*100)
-getCountsPerCluster <- function(df, level='Level1'){
-  freq1 <- as.data.frame(table(df[level]) )
-  freq1$Var1 <- names(table(df[level]) )
-  counts <- freq1[order(freq1$Freq, decreasing = T),]
-  return(counts)
-}
-numberOfClusters=15
-counts <- getCountsPerCluster(df, level=level)
-clusters <- lapply(counts$Var1[1:numberOfClusters], function(x){
-  as.character(df$Gene[df[level] == x])
-})
-names(clusters) <- paste0(rep("Cluster",length(clusters)), counts$Var1[1:length(clusters)])
-file="data/seidr/backbone/infomapClusters.tsv"
-fileConn<-file(file,"w")
-writeLines(paste0("gene","\t","cluster"), fileConn)
-clusterNames <- names(clusters)
-for (i in 1:length(clusterNames)) {
-  thisCluster <- clusterNames[i]
-  print (thisCluster)
-  for (gene in clusters[i]) {
-    writeLines(paste0(gene,"\t",thisCluster), fileConn)
-  }
-}
-close(fileConn)
+
+## CLUSTERING LEVEL SELECTION
+## Check the decision tree in the lecture material
+
+# TASK - we start at Level1 if it doesn't match our criteria come back to this
+# line and change the level to Level2 and so on until the 
+# criteria has been reached
+level <- 'Level1'
+
+# How many cluster does this level has?
+print(paste(level,"clusters:", length(unique(res[[level]])))) 
+
+# Using dplyr we obtain the number of genes per cluster
+counts <- res %>% 
+  group_by(!!sym(level)) %>%
+  summarise(geneNumber=n()) %>%
+  arrange(desc(geneNumber))
+
+# TASK - get the amount of clusters in the current level
+# Use the unique and length commands
+# Expected output: integer
+clusterNumber <- unique(res$Level1)
+
+# TASK - get amount of genes in the top 20 clusters
+# Expected output: integer
+genesInTop20 <- sum(counts[1:20,2])
+
+# TASK - calculate the total amount of genes in the network
+# The total genes in the network matches the rows of the data
+# Expected output - integer
+genesTotal <- sum(counts[,2])
+
+# Let's print the information so far
+print(paste("Genes in the top 20 clusters:", genesInTop20))
+print(paste("Genes in the network", genesTotal))
+
+# CHECKPOINT
+# The following line will tell you if the current level matches our
+# selection criteria.
+print(paste("Percentage of genes in the top 20 clusters:", round(genesInTop20/genesTotal, digits = 4)*100))
+
+# If the previous percentage doesn't match our criteria, come back
+# to the CLUSTER LEVEL SELECTION section and increase the current 
+# level in one unit
+
+# If the criteria was matched then continue
+# 
+## CONSTRUCT THE cluster LIST
+# Extract the gene names for each cluster of interest
+# 
+# TASK - subset the res matrix and keep only the Gene column
+# and the current level column
+# 
+infomapClusters <- res[,c("Gene", "Level1")]
+
+# CHECKPOINT
+# 
+# Let's check the current cluster list
+head(infomapClusters)
+# If everything is ok the previous command should give a result similar to this
+# Gene Level1
+# 1   Potra2n1c2185      1
+# 2  Potra2n5c11770      1
+# 3 Potra2n16c30312      1
+
+# TASK - add the the string "Cluster" as prefix to the cluster number
+# 
+infomapClusters$Level1 <- paste0("Cluster", infomapClusters$Level1)
+
+# change the column names to gene and cluster before exporting  
+names(infomapClusters) <- c("gene", "cluster")
+
+
+# CHECKPOINT
+# 
+# Let's check the current edgeList
+head(infomapClusters)
+# If everything is ok the previous command should give a result similar to this
+#              gene  cluster
+# 1   Potra2n1c2185 Cluster1
+# 2  Potra2n5c11770 Cluster1
+# 3 Potra2n16c30312 Cluster1
+
+# FILTERING
+# Lets filter the clusters and only keep those that have at least 15 genes.
+minSize <- 15
+
+infomapClusters.filter <- infomapClusters %>% 
+  group_by(cluster) %>% 
+  filter(n() >= minSize)
+
+# Let's check the result
+infomapClusters.filter %>% tally()
+
+
+## SAVE THE RESULTS
+
+# write the results in a tsv file
+write.table(infomapClusters.filter,
+            file = "~/Git/lncRNAs/data/seidr/backbone/infomapClusters.tsv",
+            row.names = FALSE, sep = '\t')
+
+write.csv(infomapClusters.filter,
+       file = "~/Git/lncRNAs/data/seidr/backbone/infomapClusters.csv",
+       row.names = FALSE)

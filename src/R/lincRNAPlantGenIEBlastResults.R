@@ -23,13 +23,13 @@ suppressPackageStartupMessages({
 res <- readBlast(here("data/blastn_plaza/plaza_linc_network.blt"),
           format=BM8ext)
 
-#' There are 2847 hits from lincRNA
+#' There are 953 hits from lincRNA
 length(unique(res$df$query.id))
 
-#' to 44824 subjects :-O
+#' to 22762 subjects :-O
 length(unique(res$df$subject.id))
 
-#' Only 3101 have a query coverage over 70%
+#' Only 655 have a query coverage over 70%
 sel <- res$df$query.cum.cov >= 0.7
 sum(sel)
 
@@ -55,7 +55,7 @@ boxplot(split(res$df$query.cum.cov,res$df$Species),notch=TRUE,las=2,ylim=c(0,0.4
 #' over 70% coverage
 boxplot(split(res$df$query.cum.cov[sel],res$df$Species[sel]),las=2,ylim=c(0,1))
 
-#' 530 unique lncRNAs
+#' 191 unique lncRNAs
 length(unique(res$df$query.id[sel]))
 
 #' number of hits per lncRNAs (number on the x axis, the y axis is the number of lincRNAs with that many hits)

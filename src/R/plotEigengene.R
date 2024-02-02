@@ -67,7 +67,6 @@ plotEigengene <- function(data, genes, condition, time, timeUnits = "Time",
                      aes(x = x, y = y, group = g)) +
       stat_summary(fun.data = mean_se, geom = "ribbon", fill = "lightgrey", alpha = 0.75) +
       stat_summary(fun.data = mean_se, geom = "line", aes(col = g), lwd = 2) + #      plot_output_list <- lapply(shiftedColors, function(color) {
-      
       labs(color = legendTitle)
     
   }
