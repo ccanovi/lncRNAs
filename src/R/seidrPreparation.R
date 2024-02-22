@@ -50,6 +50,7 @@ miRNA <- suppressWarnings(read_csv("sRNA/ShortStack_genome/Pabies_SE_miRNA_filte
   column_to_rownames("...1")
 sample_info_miRNA <- read_csv("sRNA/ShortStack_genome/Pabies_SE_miRNA_sampleInfo_B2.csv",
                               col_types=cols(.default=col_character())) 
+
 #' filter batch 1
 miRNA <- miRNA[,match(sample_info_miRNA$SubmittedID,colnames(miRNA))]
 #' reorder as the mRNA

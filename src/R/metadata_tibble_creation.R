@@ -45,7 +45,7 @@ counts <- sapply(split.data.frame(t(as.data.frame(counts)),colnames(counts)),col
 
 #' ## stage specificity
 load(here("data/analysis/DE/vst-aware_linc.rda"))
-samples_m <- read.csv(here("doc/samples.csv"))
+samples_m <- read.csv(here("doc/samples_final.csv"))
 time_expression <- expressionSpecificity(
   exp.mat = vsta,
   tissues = as.character(samples_m$Stages[match(colnames(vsta),samples_m$SampleID)]),
@@ -326,6 +326,11 @@ lincRNAs <- metadata %>% filter(non_coding == TRUE &
 write_tsv(metadata,file=here("data/metadata.tsv.gz"))
 saveRDS(metadata,file=here("data/metadata.rds"))
 
+#exclude batch 1, not used in the analyses
+meta <- read_tsv(here("data/metadata.tsv.gz"))
+meta <- select(me, -c(2,3,4,5,6,7,8,9,10,11,vst_P464_202,vst_P464_203,vst_P464_204,vst_P464_205,vst_P464_206,vst_P464_207B,vst_P464_208,vst_P464_209B))
+write_tsv(meta,file=here("data/metadata_new.tsv.gz"))
+saveRDS(meta,file=here("data/metadata_new.rds"))
 
 #' # Session Info
 #' ```{r session info, echo=FALSE}

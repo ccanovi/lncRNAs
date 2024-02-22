@@ -18,7 +18,7 @@ suppressPackageStartupMessages({
 })
 
 #' * Data
-metadata <- readRDS(file=here("data/metadata.rds"))
+metadata <- readRDS(file=here("data/metadata_new.rds"))
 
 sel <- select(metadata,TRINITY_ID,coding,lincRNAs)
 cod <- sel %>% filter(coding==TRUE)

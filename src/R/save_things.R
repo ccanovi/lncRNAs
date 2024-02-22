@@ -27,10 +27,10 @@ names(seq) <- sub(" .*","",names(seq))
 IDs <- rownames(dat)[grep("TRINITY",rownames(dat))]
 writeXStringSet(seq[IDs],file="~/Git/lncRNAs/data/analysis/DE/linc_network.fasta")
 
-seq <- readDNAStringSet("data/trinity/Trinity.fasta")
+seq <- readDNAStringSet("data/trinity/Trinity.fasta.gz")
 names(seq) <- sub(" .*","",names(seq))
-IDs <- FDG3_c3[grep("TRINITY",FDG_c3)]
-writeXStringSet(seq[IDs],file="~/Git/lncRNAs/data/analysis/DE/candidates_PR.fasta")
+IDs <- names(seq)[names(seq) !="TRINITY_DN25410_c1_g1_i3"]
+writeXStringSet(seq[IDs],file="~/Git/lncRNAs/data/analysis/DE/transcripts_all.fasta")
 IDs <- "TRINITY_DN37788_c0_g2_i2"
 writeXStringSet(seq[IDs],file="~/Git/lncRNAs/data/analysis/lncTar_12/myguy12.fasta")
 IDs <- c("TRINITY_DN23326_c0_g1_i1","TRINITY_DN16429_c0_g1_i2","TRINITY_DN58094_c0_g2_i1","TRINITY_DN9869_c0_g1_i5",
