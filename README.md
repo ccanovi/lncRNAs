@@ -1,5 +1,5 @@
 # lncRNAs
-Stuff useful for the pipeline
+Identification of long intergenic non-coding RNAs (lincRNAs) in Norway spruce somatic embryogenesis (SE).
 
 ## Setup
 ```{bash}
