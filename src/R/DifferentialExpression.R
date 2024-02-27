@@ -130,6 +130,50 @@ l <- ggplot(linc,aes(Stage_comparison,numbers,fill=regulation)) +
   theme(plot.title = element_text(face = "bold"))
 l
 
+#save the lists of DE lincRNAs 
+res_2vs1_ord <- res_2vs1[order(res_2vs1$padj),]
+rownames2vs1_ord <- rownames(res_2vs1_ord[res_2vs1_ord$padj <= 0.01 & abs(res_2vs1_ord$log2FoldChange) >= 0.5 & !is.na(res_2vs1_ord$padj),])
+list_DE2vs1_ord <- rownames2vs1_ord 
+list_DE2vs1_ord <- sub("\\.1$","",rownames2vs1_ord)
+list_DE2vs1_ord <- as_tibble(list_DE2vs1_ord)
+write_csv(list_DE2vs1_ord,here("data/analysis/DE/DE_linc_list/DE_linc_2vs1.csv"), col_names = FALSE)
+res_3vs2_ord <- res_3vs2[order(res_3vs2$padj),]
+rownames3vs2_ord <- rownames(res_3vs2_ord[res_3vs2_ord$padj <= 0.01 & abs(res_3vs2_ord$log2FoldChange) >= 0.5 & !is.na(res_3vs2_ord$padj),])
+list_DE3vs2_ord <- rownames3vs2_ord 
+list_DE3vs2_ord <- sub("\\.1$","",rownames3vs2_ord)
+list_DE3vs2_ord <- as_tibble(list_DE3vs2_ord)
+write_csv(list_DE3vs2_ord,here("data/analysis/DE/DE_linc_list/DE_linc_3vs2.csv"), col_names = FALSE)
+res_4vs3_ord <- res_4vs3[order(res_4vs3$padj),]
+rownames4vs3_ord <- rownames(res_4vs3_ord[res_4vs3_ord$padj <= 0.01 & abs(res_4vs3_ord$log2FoldChange) >= 0.5 & !is.na(res_4vs3_ord$padj),])
+list_DE4vs3_ord <- rownames4vs3_ord 
+list_DE4vs3_ord <- sub("\\.1$","",rownames4vs3_ord)
+list_DE4vs3_ord <- as_tibble(list_DE4vs3_ord)
+write_csv(list_DE4vs3_ord,here("data/analysis/DE/DE_linc_list/DE_linc_4vs3.csv"), col_names = FALSE)
+res_5vs4_ord <- res_5vs4[order(res_5vs4$padj),]
+rownames5vs4_ord <- rownames(res_5vs4_ord[res_5vs4_ord$padj <= 0.01 & abs(res_5vs4_ord$log2FoldChange) >= 0.5 & !is.na(res_5vs4_ord$padj),])
+list_DE5vs4_ord <- rownames5vs4_ord 
+list_DE5vs4_ord <- sub("\\.1$","",rownames5vs4_ord)
+list_DE5vs4_ord <- as_tibble(list_DE5vs4_ord)
+write_csv(list_DE5vs4_ord,here("data/analysis/DE/DE_linc_list/DE_linc_5vs4.csv"), col_names = FALSE)
+res_6vs5_ord <- res_6vs5[order(res_6vs5$padj),]
+rownames6vs5_ord <- rownames(res_6vs5_ord[res_6vs5_ord$padj <= 0.01 & abs(res_6vs5_ord$log2FoldChange) >= 0.5 & !is.na(res_6vs5_ord$padj),])
+list_DE6vs5_ord <- rownames6vs5_ord 
+list_DE6vs5_ord <- sub("\\.1$","",rownames6vs5_ord)
+list_DE6vs5_ord <- as_tibble(list_DE6vs5_ord)
+write_csv(list_DE6vs5_ord,here("data/analysis/DE/DE_linc_list/DE_linc_6vs5.csv"), col_names = FALSE)
+res_7vs6_ord <- res_7vs6[order(res_7vs6$padj),]
+rownames7vs6_ord <- rownames(res_7vs6_ord[res_7vs6_ord$padj <= 0.01 & abs(res_7vs6_ord$log2FoldChange) >= 0.5 & !is.na(res_7vs6_ord$padj),])
+list_DE7vs6_ord <- rownames7vs6_ord 
+list_DE7vs6_ord <- sub("\\.1$","",rownames7vs6_ord)
+list_DE7vs6_ord <- as_tibble(list_DE7vs6_ord)
+write_csv(list_DE7vs6_ord,here("data/analysis/DE/DE_linc_list/DE_linc_7vs6.csv"), col_names = FALSE)
+res_8vs7_ord <- res_8vs7[order(res_8vs7$padj),]
+rownames8vs7_ord <- rownames(res_8vs7_ord[res_8vs7_ord$padj <= 0.01 & abs(res_8vs7_ord$log2FoldChange) >= 0.5 & !is.na(res_8vs7_ord$padj),])
+list_DE8vs7_ord <- rownames8vs7_ord 
+list_DE8vs7_ord <- sub("\\.1$","",rownames8vs7_ord)
+list_DE8vs7_ord <- as_tibble(list_DE8vs7_ord)
+write_csv(list_DE8vs7_ord,here("data/analysis/DE/DE_linc_list/DE_linc_8vs7.csv"), col_names = FALSE)
+
 #' * Data coding 
 #' ```{r load, echo=FALSE,eval=FALSE}
 #' ```
@@ -233,11 +277,56 @@ g <- ggplot(ga,aes(Stage_comparison,numbers,fill=regulation)) +
   theme(plot.title = element_text(face = "bold"))
 g
 
+#save the lists of DE coding 
+res_2vs1_ord <- res_2vs1[order(res_2vs1$padj),]
+rownames2vs1_ord <- rownames(res_2vs1_ord[res_2vs1_ord$padj <= 0.01 & abs(res_2vs1_ord$log2FoldChange) >= 0.5 & !is.na(res_2vs1_ord$padj),])
+list_DE2vs1_ord <- rownames2vs1_ord 
+list_DE2vs1_ord <- sub("\\.1$","",rownames2vs1_ord)
+list_DE2vs1_ord <- as_tibble(list_DE2vs1_ord)
+write_csv(list_DE2vs1_ord,here("data/analysis/DE/DE_gene_list/DE_genes_2vs1.csv"), col_names = FALSE)
+res_3vs2_ord <- res_3vs2[order(res_3vs2$padj),]
+rownames3vs2_ord <- rownames(res_3vs2_ord[res_3vs2_ord$padj <= 0.01 & abs(res_3vs2_ord$log2FoldChange) >= 0.5 & !is.na(res_3vs2_ord$padj),])
+list_DE3vs2_ord <- rownames3vs2_ord 
+list_DE3vs2_ord <- sub("\\.1$","",rownames3vs2_ord)
+list_DE3vs2_ord <- as_tibble(list_DE3vs2_ord)
+write_csv(list_DE3vs2_ord,here("data/analysis/DE/DE_gene_list/DE_genes_3vs2.csv"), col_names = FALSE)
+res_4vs3_ord <- res_4vs3[order(res_4vs3$padj),]
+rownames4vs3_ord <- rownames(res_4vs3_ord[res_4vs3_ord$padj <= 0.01 & abs(res_4vs3_ord$log2FoldChange) >= 0.5 & !is.na(res_4vs3_ord$padj),])
+list_DE4vs3_ord <- rownames4vs3_ord 
+list_DE4vs3_ord <- sub("\\.1$","",rownames4vs3_ord)
+list_DE4vs3_ord <- as_tibble(list_DE4vs3_ord)
+write_csv(list_DE4vs3_ord,here("data/analysis/DE/DE_gene_list/DE_genes_4vs3.csv"), col_names = FALSE)
+res_5vs4_ord <- res_5vs4[order(res_5vs4$padj),]
+rownames5vs4_ord <- rownames(res_5vs4_ord[res_5vs4_ord$padj <= 0.01 & abs(res_5vs4_ord$log2FoldChange) >= 0.5 & !is.na(res_5vs4_ord$padj),])
+list_DE5vs4_ord <- rownames5vs4_ord 
+list_DE5vs4_ord <- sub("\\.1$","",rownames5vs4_ord)
+list_DE5vs4_ord <- as_tibble(list_DE5vs4_ord)
+write_csv(list_DE5vs4_ord,here("data/analysis/DE/DE_gene_list/DE_genes_5vs4.csv"), col_names = FALSE)
+res_6vs5_ord <- res_6vs5[order(res_6vs5$padj),]
+rownames6vs5_ord <- rownames(res_6vs5_ord[res_6vs5_ord$padj <= 0.01 & abs(res_6vs5_ord$log2FoldChange) >= 0.5 & !is.na(res_6vs5_ord$padj),])
+list_DE6vs5_ord <- rownames6vs5_ord 
+list_DE6vs5_ord <- sub("\\.1$","",rownames6vs5_ord)
+list_DE6vs5_ord <- as_tibble(list_DE6vs5_ord)
+write_csv(list_DE6vs5_ord,here("data/analysis/DE/DE_gene_list/DE_genes_6vs5.csv"), col_names = FALSE)
+res_7vs6_ord <- res_7vs6[order(res_7vs6$padj),]
+rownames7vs6_ord <- rownames(res_7vs6_ord[res_7vs6_ord$padj <= 0.01 & abs(res_7vs6_ord$log2FoldChange) >= 0.5 & !is.na(res_7vs6_ord$padj),])
+list_DE7vs6_ord <- rownames7vs6_ord 
+list_DE7vs6_ord <- sub("\\.1$","",rownames7vs6_ord)
+list_DE7vs6_ord <- as_tibble(list_DE7vs6_ord)
+write_csv(list_DE7vs6_ord,here("data/analysis/DE/DE_gene_list/DE_genes_7vs6.csv"), col_names = FALSE)
+res_8vs7_ord <- res_8vs7[order(res_8vs7$padj),]
+rownames8vs7_ord <- rownames(res_8vs7_ord[res_8vs7_ord$padj <= 0.01 & abs(res_8vs7_ord$log2FoldChange) >= 0.5 & !is.na(res_8vs7_ord$padj),])
+list_DE8vs7_ord <- rownames8vs7_ord 
+list_DE8vs7_ord <- sub("\\.1$","",rownames8vs7_ord)
+list_DE8vs7_ord <- as_tibble(list_DE8vs7_ord)
+write_csv(list_DE8vs7_ord,here("data/analysis/DE/DE_gene_list/DE_genes_8vs7.csv"), col_names = FALSE)
+
 #for figure3 after running the 2 BiologicalQA
 library(cowplot)
 fig2 <- plot_grid(m,g,p,l,labels=c("A","B","C","D"),ncol=2)#vjust = 1.3,ncol=2)#hjust=-20,)
 plot(fig2)
 ggsave(filename=here("data/analysis/figures//PCA_DE_figure2.png"),device ="png",dpi = 600)
+
 
 #' # Session Info 
 #'  ```{r session info, echo=FALSE}
