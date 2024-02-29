@@ -1,6 +1,10 @@
 # lncRNAs
 Identification of long intergenic non-coding RNAs (lincRNAs) in Norway spruce somatic embryogenesis (SE).
 
+## CITATION
+
+Use DOI: 10.5281/zenodo.10716226 to cite this repository.
+
 ## Setup
 ```{bash}
 ln -s /mnt/picea/storage/reference/Swiss-Prot swissprot
